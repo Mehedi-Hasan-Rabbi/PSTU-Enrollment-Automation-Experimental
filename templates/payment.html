@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- custom css file link  -->
+    <link rel="stylesheet" href="{% static 'css/payment.css' %}">
+
+</head>
+<body>
+
+<div class="container">
+
+    <form action="">
+
+        <div class="row">
+
+            <div class="col">
+
+                <h3 class="title">billing address</h3>
+
+                <div class="inputBox">
+                    <span>full name :</span>
+                    <input type="text" placeholder="your full name">
+                </div>
+                <div class="inputBox">
+                    <span>email :</span>
+                    <input type="email" placeholder="example@example.com">
+                </div>
+                <div class="inputBox">
+                    <span>Allotted Hall :</span>
+                    <input type="text" placeholder="your hall name">
+                </div>
+                <div class="inputBox">
+                    <span>Hall attach no :</span>
+                    <input type="text" placeholder="2241">
+                </div>
+
+
+            </div>
+
+            <div class="col">
+
+                <h3 class="title">payment</h3>
+
+                <div class="inputBox">
+                    <span>cards accepted :</span>
+                    <img src="images/bkash.png" alt="">
+                    <img src="images/nagad.png" alt="">
+                    <img src="images/islamic.png" alt="">
+                </div>
+                <div class="inputBox">
+                    <span>Transaction ID :</span>
+                    <input type="text" placeholder="Trxid:XXXXXXXXXXX">
+                </div>
+                <div class="inputBox">
+                    <span>Mobile number :</span>
+                    <input type="text" placeholder="0123456789">
+                </div>
+                <div class="inputBox">
+                    <span>PIN :</span>
+                    <input type="text" placeholder="XXXXX">
+                </div>
+
+
+            </div>
+    
+        </div>
+
+        <input type="submit" value="proceed to checkout" class="submit-btn">
+
+    </form>
+
+</div>    
+    
+</body>
+</html>

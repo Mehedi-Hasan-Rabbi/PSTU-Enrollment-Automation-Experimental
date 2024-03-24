@@ -1,0 +1,16 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: #827175 ;
+}
+
+.form_container {
+    width: 400px; /* Set the width as needed */
+    padding: 20px;
+    
+    border: 5px solid #51e20e;
+    border-radius: 8px;
+    background-color: #71d5fa ;
+    margin-left: 35%;
+    margin-top: 10%;
+}

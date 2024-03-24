@@ -1,0 +1,68 @@
+/* Import Google font - Poppins */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
+body{
+  margin-top: 60px;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+  background-color: coral;
+}
+
+table, tr, th, td{
+  border: 2px solid;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+table tr:nth-child(even)
+{
+  background-color: rgb(206, 198, 198);
+}
+table tr:nth-child(odd)
+{
+  background-color: rgb(245, 238, 238);
+}
+th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #DDD;
+}
+
+table tr:hover {
+  background-color: orchid;
+}
+
+
+/* semesterCourses section */
+
+.grid-container {
+  display: grid;
+  grid-template-columns: auto auto;
+  background-color: #C4DFE6;
+  padding: 10px;
+}
+.grid-item {
+  background-color: #73605B;
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  font-size: 30px;
+  text-align: center;
+  border-radius: 25px;
+  margin: 20px;
+}
+.grid-item:hover {
+  background-color: #330000;
+  border: 2px solid rgb(242, 255, 3);
+  padding: 20px;
+  font-size: 30px;
+  text-align: center;
+  border-radius: 25px;
+  margin: 14px;
+}
+.grid-item a
+{
+  text-decoration: none;
+  color: rgb(255, 255, 255);
+}
