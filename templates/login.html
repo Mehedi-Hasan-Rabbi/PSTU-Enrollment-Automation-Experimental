@@ -33,8 +33,6 @@
             <div class="mb-3">
               <label class="form-label">Student ID</label>
               <input type="text" class="form-control" name="Student_ID">
-              <div id="emailHelp" class="form-text">We'll never share your email with anyone else.
-              </div>
             </div>
 
             <div class="mb-3">
@@ -42,7 +40,10 @@
               <input type="password" class="form-control" name="password">
             </div>
              
-            <button type="submit">Login</button> 
+            {% comment %} <button type="submit">Login</button> {% endcomment %}
+            
+            <a href="{% url 'payment' %}"><button type="submit" class="btn btn-success">Login</button></a>
+          
         </form>
 
       </div>
