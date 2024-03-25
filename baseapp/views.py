@@ -46,7 +46,19 @@ def payment(request):
 
 def profile(request):
     user = request.session.get('user_data')  # Retrieve x from session
-    print(f"\npassed data: {user}\n")
+    print(f"\npassed data: {user}  --> {type(user)}\n")
+
+    faculty_id = user[0]['faculty_id']
+    print(f"faculty_id: {faculty_id} --> {type(faculty_id)}")
+
+    faculty_name = Faculty.objects.filter(id = faculty_id).values()
+    print(f"facculty_name: {faculty_name} --> {type(faculty_name)}")
+
+    name = faculty_name[0]['name']
+    print(f"name: {name} --> {type(name)}")
+
+    user[0]['faculty_id'] = name
+
     return render(request, 'profile.html', {'user': user})
 
 def profileupdate(request):
@@ -100,15 +112,25 @@ def show_next_semester_courses(request):
     # Determine the name of the next semester
     next_semester_name = get_next_semester_name(current_semester_name)
 
-    # Find the next semester based on the name
-    next_semester = Semester.objects.filter(name=next_semester_name).first()
 
-    if next_semester:
+    if next_semester_name:
+
+        # Find the next semester based on the name
+        next_semester = Semester.objects.get(name=next_semester_name)
         # Retrieve the courses for the next semester
         next_semester_courses = Course.objects.filter(semester=next_semester, faculty=Student.faculty)
 
+        total_fee = int(0)
+        for course in next_semester_courses:
+            course.total_credit = course.credit * 75
+            total_fee += course.total_credit
+
         # Pass the data to the template
-        return render(request, 'next_semester_courses.html', {'student': Student, 'next_semester_courses': next_semester_courses})
+        return render(request, 'next_semester_courses.html', {
+            'student': Student, 
+            'next_semester_courses': next_semester_courses,
+            'total_fee' : total_fee,
+        })
     else:
         # If there is no next semester, display a message or handle it as per your requirement
         return HttpResponse(request, 'No Course Found')
@@ -124,3 +146,7 @@ def get_next_semester_name(current_semester_name):
     except ValueError:
         pass  # Handle if the current semester name is not found in the list of semesters
     return None
+
+
+def payment(request):
+    return render(request, 'payment.html')

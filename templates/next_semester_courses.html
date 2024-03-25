@@ -4,41 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Next Semester Courses</title>
-    <!-- Add any CSS stylesheets or links here -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <style>
-        /* Add your CSS styles here */
+        /* CSS styles */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f8f9fa;
+            background-color: #58DAE0; /* Light gray background */
         }
         .container {
             max-width: 800px;
             margin: auto;
             padding: 20px;
+            background-color: #fff; /* White container background */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Drop shadow */
         }
         h1 {
             text-align: center;
             margin-bottom: 20px;
+            color: #333;
         }
-        .course {
-            background-color: #fff;
-            border-radius: 5px;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-        table, th, td 
-        {
-            border: 1px solid black;
+        .course-table {
+            width: 100%;
             border-collapse: collapse;
+            border: 1px solid #ddd;
+            margin-top: 20px;
         }
-        th, td 
-        {
-            padding-top: 10px;
-            padding-bottom: 20px;
-            padding-left: 30px;
-            padding-right: 40px;
+        .course-table th, .course-table td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+        .course-table th {
+            background-color: #f2f2f2; /* Light gray header background */
+            color: #333;
+        }
+        .course-table tr:hover {
+            background-color: #f9f9f9; /* Light gray background on hover */
+        }
+        .total-fee {
+            margin-top: 20px;
+            text-align: right;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -47,29 +56,30 @@
 <div class="container">
     <h1>Next Semester Courses</h1>
     <div class="courses">
-        <!-- Loop through courses and display them -->
-        
-        <div class="course">
-            <table>
+        <table class="course-table">
+            <tr>
+                <th>Course Code</th>
+                <th>Course Title</th>
+                <th>Credit</th>
+                <th>Semester</th>
+                <th>Faculty</th>
+                <th>Course Fee</th>
+            </tr>
+            {% for course in next_semester_courses %}
                 <tr>
-                    <th>Course Code</th>
-                    <th>Course Title</th>
-                    <th>Credit</th>
-                    <th>Semester</th>
-                    <th>Faculty</th>
+                    <td>{{ course.course_code }}</td>
+                    <td>{{ course.course_title }}</td>
+                    <td>{{ course.credit }}</td>
+                    <td>{{ course.semester }}</td>
+                    <td>{{ course.faculty }}</td>
+                    <td>{{ course.total_credit }}</td>
                 </tr>
-                {% for course in next_semester_courses %}
-                    <tr>
-                        <td>{{ course.course_code }}</td>
-                        <td>{{ course.course_title }}</td>
-                        <td>{{ course.credit }}</td>
-                        <td>{{ course.semester }}</td>
-                        <td>{{ course.faculty }}</td>
-                    </tr>
-                {% endfor %}
-            </table>
+            {% endfor %}
+        </table>
+        <div class="total-fee">Total course fee: {{ total_fee }}</div>
+        <div class="text-center">
+            <a href="{% url 'payment' %}"><button type="button" class="btn btn-success">Pay Enrollment Fee</button></a>
         </div>
-        
     </div>
 </div>
 
