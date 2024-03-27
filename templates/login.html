@@ -15,7 +15,7 @@
     <!-- Navbar Section -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-          <a class="navbar-brand" href="{% url 'first' %}">Home</a>
+          <a class="navbar-brand" href="{% url 'home' %}">Home</a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -26,49 +26,22 @@
       <!-- Navbar section ends -->
 
 
-      <div class="form_container">
+      <div class="container">
+        <form action="" method="POST">
+          {% csrf_token %}
+          <label for="current_password">Enter Student ID:</label>
+          <input type="text" id="current_password" name="Student_ID" required>
+  
+          <label for="new_password">Enter Password</label>
+          <input type="password" id="new_password" name="password" required>
+  
+          <input type="submit" value="Log in">
+      </form>
 
-        <form action="" method="post">
-            {% csrf_token %}
-            <div class="mb-3">
-              <label class="form-label">Student ID</label>
-              <input type="text" class="form-control" name="Student_ID">
-            </div>
-
-            <div class="mb-3">
-              <label for="exampleInputPassword1" class="form-label">Password</label>
-              <input type="password" class="form-control" name="password">
-            </div>
-             
-            {% comment %} <button type="submit">Login</button> {% endcomment %}
-            
-            <a href="{% url 'payment' %}"><button type="submit" class="btn btn-success">Login</button></a>
-          
-        </form>
-
+      {% for msg in messages %}
+      <h6>{{msg}}</h6>
+      {% endfor %} 
       </div>
-      
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     
 </body>

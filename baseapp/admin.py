@@ -1,5 +1,5 @@
 from django.contrib import admin
-from baseapp.models import student, Semester, Course, Faculty
+from baseapp.models import student, Semester, Course, Faculty, Cost
 
 
 class StudentAdmin(admin.ModelAdmin):
@@ -11,3 +11,4 @@ admin.site.register(student, StudentAdmin)
 admin.site.register(Faculty)
 admin.site.register(Semester)
 admin.site.register(Course)
+admin.site.register(Cost)

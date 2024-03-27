@@ -11,7 +11,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #58DAE0; /* Light gray background */
+            background-color: #4d97e0; /* Light gray background */
         }
         .container {
             max-width: 800px;
@@ -44,7 +44,7 @@
         .course-table tr:hover {
             background-color: #f9f9f9; /* Light gray background on hover */
         }
-        .total-fee {
+        .fee {
             margin-top: 20px;
             text-align: right;
             font-weight: bold;
@@ -76,7 +76,8 @@
                 </tr>
             {% endfor %}
         </table>
-        <div class="total-fee">Total course fee: {{ total_fee }}</div>
+        <div class="fee">Total course fee: {{ course_fee }}, Other fee: {{ other_fee }}</div>
+        <div class="fee">Total Enrollment Fee: {{ total_fee }}</div>
         <div class="text-center">
             <a href="{% url 'payment' %}"><button type="button" class="btn btn-success">Pay Enrollment Fee</button></a>
         </div>

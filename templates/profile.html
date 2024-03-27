@@ -77,6 +77,9 @@
           <li class="item">
             <a href="{% url 'profileupdate' %}">Profile Update</a>
           </li>
+          <li class="item">
+            <a href="{% url 'logout' %}">Log out</a>
+          </li>
 
         </ul>
       </div>
@@ -115,7 +118,7 @@
         </div>
         {% endfor %}
         {% for msg in messages %}
-            <h4>{{msg}}</h4>
+            <h6>{{msg}}</h6>
         {% endfor %}
     </main>
 

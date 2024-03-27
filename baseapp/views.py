@@ -1,11 +1,11 @@
 from django.shortcuts import redirect, render
-from baseapp.models import student, Faculty, Semester, Course
+from baseapp.models import student, Faculty, Semester, Course, Cost
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 
 # Create your views here.
-def first(request):
+def home(request):
     return render(request, 'index.html')
 
 def faculty(request):
@@ -20,7 +20,7 @@ def login(request):
             if i >= '0' and i <= '9':
                 print()
             else:
-                # messages.warning(request, "ID must be number")
+                messages.warning(request, "Student ID must be number")
                 return render(request, 'login.html')
 
         print(f"\nStudent ID: {student_ID}")
@@ -36,6 +36,7 @@ def login(request):
             return redirect('profile')
         else:
             print("\nLogin Failes\n")
+            messages.error(request, "Invalid Credintials")
             return render(request, 'login.html')
 
     else:
@@ -120,20 +121,29 @@ def show_next_semester_courses(request):
         # Retrieve the courses for the next semester
         next_semester_courses = Course.objects.filter(semester=next_semester, faculty=Student.faculty)
 
-        total_fee = int(0)
+        course_fee = int(0)
+        perCredit = Cost.objects.filter(id=1).values()
+        fee = perCredit[0]['cost_per_credit']
+        print(f"fee: {fee} --> {type(fee)}")
         for course in next_semester_courses:
-            course.total_credit = course.credit * 75
-            total_fee += course.total_credit
+            course.total_credit = course.credit * fee
+            course_fee += course.total_credit
+        
+        other_fee = perCredit[0]['electricity']
+        print(f"Other fee: {fee} --> {type(fee)}")
 
         # Pass the data to the template
         return render(request, 'next_semester_courses.html', {
             'student': Student, 
             'next_semester_courses': next_semester_courses,
-            'total_fee' : total_fee,
+            'course_fee' : course_fee,
+            'other_fee' : other_fee,
+            'total_fee' : course_fee + other_fee,
         })
     else:
         # If there is no next semester, display a message or handle it as per your requirement
-        return HttpResponse(request, 'No Course Found')
+        # return HttpResponse(request, 'No Course Found')
+        return render(request, 'noCourse.html')
 
 def get_next_semester_name(current_semester_name):
     # Map the current semester name to the next semester name
@@ -150,3 +160,6 @@ def get_next_semester_name(current_semester_name):
 
 def payment(request):
     return render(request, 'payment.html')
+
+def logout(request):
+    redirect('login.html')
