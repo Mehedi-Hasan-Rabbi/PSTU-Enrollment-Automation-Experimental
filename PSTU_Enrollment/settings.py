@@ -79,8 +79,15 @@ WSGI_APPLICATION = 'PSTU_Enrollment.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': BASE_DIR / 'db.sqlite3',
+        
+        'ENGINE': 'django.db.backends.mysql',    # MySQL backend for Django
+        'NAME': 'pstu_enrollment',            # Database name (create it in step 4)
+        'USER': 'root',                          # Default MySQL username in XAMPP
+        'PASSWORD': '',                          # Leave it empty for root, or add your password if you set one
+        'HOST': 'localhost',                     # Host (localhost for XAMPP)
+        'PORT': '3306',                          # Default MySQL port in XAMPP
     }
 }
 
