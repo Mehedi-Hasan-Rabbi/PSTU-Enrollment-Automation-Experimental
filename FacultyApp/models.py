@@ -38,7 +38,12 @@ class Semester(models.Model):
 
 class Department(models.Model):
     dept_name = models.CharField(max_length=255, unique=True)
-    faculty_name = models.OneToOneField(Faculty, on_delete=models.CASCADE, null=True)
+    faculty_name = models.ForeignKey(Faculty, on_delete=models.CASCADE, null=True)
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['dept_name', 'faculty_name'], name='unique_faculty_dept')
+        ]
     
     def __str__(self):
         return f'{self.dept_name}'
@@ -46,13 +51,15 @@ class Department(models.Model):
 class Course(models.Model):
     course_code = models.CharField(max_length=20, primary_key=True)
     course_title = models.CharField(max_length=255, unique=True)
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE, null=True)
+    faculty_name = models.ForeignKey(Faculty, on_delete=models.CASCADE, null=True)
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['course_code', 'semester', 'faculty_name'], name='unique_course_code_semester')
+        ]
     
     def __str__(self):
         return f'{self.course_code}'
 
-
-class AssignCourse(models.Model):
-    faculty_name = models.ForeignKey(Faculty, on_delete=models.CASCADE)
-    semester_number = models.ForeignKey(Semester, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
     

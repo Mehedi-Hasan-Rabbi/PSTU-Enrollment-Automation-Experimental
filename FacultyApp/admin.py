@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Faculty, Semester, Course, AssignCourse, Department
+from .models import Faculty, Semester, Course, Department
 
 # Register your models here.
 # admin.site.register(Faculty)
@@ -27,12 +27,8 @@ class DepartmentAdmin(admin.ModelAdmin):
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ('course_code', 'course_title')
-    search_fields = ('course_code', 'course_title')
+    list_display = ('course_code', 'course_title', 'semester', 'faculty_name')
+    search_fields = ('course_code', 'course_title', 'semester', 'faculty_name')
     list_filter = ('course_code',)
 
-@admin.register(AssignCourse)
-class AssignCourseAdmin(admin.ModelAdmin):
-    list_display = ('faculty_name', 'semester_number', 'course')
-    search_fields = ('faculty_name__faculty_name', 'semester_number__semester_number', 'course__course_code')
-    list_filter = ('faculty_name', 'semester_number', 'course')
+
