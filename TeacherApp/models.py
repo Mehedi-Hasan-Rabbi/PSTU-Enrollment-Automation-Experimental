@@ -4,8 +4,13 @@ from FacultyApp.models import Faculty, Course, Department
 
 class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    faculty = models.OneToOneField(Faculty, on_delete=models.CASCADE, null=True)
-    department = models.OneToOneField(Department, on_delete=models.CASCADE, null=True)
+    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, null=True)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, null=True)
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'faculty', 'department'], name='unique_teacher')
+        ]
     
     
 class Course_Instructor(models.Model):
