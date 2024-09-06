@@ -36,6 +36,13 @@ class Semester(models.Model):
         return f'{self.semester_number}'
 
 
+class Department(models.Model):
+    dept_name = models.CharField(max_length=255, unique=True)
+    faculty_name = models.OneToOneField(Faculty, on_delete=models.CASCADE, null=True)
+    
+    def __str__(self):
+        return f'{self.dept_name}'
+
 class Course(models.Model):
     course_code = models.CharField(max_length=20, primary_key=True)
     course_title = models.CharField(max_length=255, unique=True)
