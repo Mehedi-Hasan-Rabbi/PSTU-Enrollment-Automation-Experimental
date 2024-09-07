@@ -79,15 +79,28 @@ WSGI_APPLICATION = 'PSTU_Enrollment.wsgi.application'
 
 DATABASES = {
     'default': {
+        # For SQLite3
+        # =====================================
         # 'ENGINE': 'django.db.backends.sqlite3',
         # 'NAME': BASE_DIR / 'db.sqlite3',
         
+        # For XAMPP(MariaDB - A fork of MySQL)
+        # =====================================
+        # 'ENGINE': 'django.db.backends.mysql',    # MySQL backend for Django
+        # 'NAME': 'pstu_enrollment',               # Database name
+        # 'USER': 'root',                          # Default MySQL username in XAMPP
+        # 'PASSWORD': '',                          # Leave it empty for root, or add your password if you set one
+        # 'HOST': 'localhost',                     # Host (localhost for XAMPP)
+        # 'PORT': '3306',                          # Default MySQL port in XAMPP
+        
+        # For MySQL(Oracle)
+        # =====================================
         'ENGINE': 'django.db.backends.mysql',    # MySQL backend for Django
-        'NAME': 'pstu_enrollment',            # Database name (create it in step 4)
-        'USER': 'root',                          # Default MySQL username in XAMPP
-        'PASSWORD': '',                          # Leave it empty for root, or add your password if you set one
-        'HOST': 'localhost',                     # Host (localhost for XAMPP)
-        'PORT': '3306',                          # Default MySQL port in XAMPP
+        'NAME': 'pstu_enrollment',               # Database name
+        'USER': 'root',                          # Default MySQL username 
+        'PASSWORD': 'thisisrootuser',            # Add your password of root user
+        'HOST': 'localhost',                     # Host (localhost for MySQL Workbench)
+        'PORT': '3310',                          # Default prot is 3306 but changed to 3310
     }
 }
 
