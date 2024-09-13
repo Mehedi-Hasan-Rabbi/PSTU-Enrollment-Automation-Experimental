@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -86,21 +87,21 @@ DATABASES = {
         
         # For XAMPP(MariaDB - A fork of MySQL)
         # =====================================
-        # 'ENGINE': 'django.db.backends.mysql',    # MySQL backend for Django
-        # 'NAME': 'pstu_enrollment',               # Database name
-        # 'USER': 'root',                          # Default MySQL username in XAMPP
-        # 'PASSWORD': '',                          # Leave it empty for root, or add your password if you set one
-        # 'HOST': 'localhost',                     # Host (localhost for XAMPP)
-        # 'PORT': '3306',                          # Default MySQL port in XAMPP
+        'ENGINE': 'django.db.backends.mysql',    # MySQL backend for Django
+        'NAME': 'pstu_enrollment',               # Database name
+        'USER': 'root',                          # Default MySQL username in XAMPP
+        'PASSWORD': '',                          # Leave it empty for root, or add your password if you set one
+        'HOST': 'localhost',                     # Host (localhost for XAMPP)
+        'PORT': '3306',                          # Default MySQL port in XAMPP
         
         # For MySQL(Oracle)
         # =====================================
-        'ENGINE': 'django.db.backends.mysql',    # MySQL backend for Django
-        'NAME': 'pstu_enrollment',               # Database name
-        'USER': 'root',                          # Default MySQL username 
-        'PASSWORD': 'thisisrootuser',            # Add your password of root user
-        'HOST': 'localhost',                     # Host (localhost for MySQL Workbench)
-        'PORT': '3310',                          # Default prot is 3306 but changed to 3310
+        # 'ENGINE': 'django.db.backends.mysql',    # MySQL backend for Django
+        # 'NAME': 'pstu_enrollment',               # Database name
+        # 'USER': 'root',                          # Default MySQL username 
+        # 'PASSWORD': 'thisisrootuser',            # Add your password of root user
+        # 'HOST': 'localhost',                     # Host (localhost for MySQL Workbench)
+        # 'PORT': '3310',                          # Default prot is 3306 but changed to 3310
     }
 }
 
@@ -139,7 +140,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT =   os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

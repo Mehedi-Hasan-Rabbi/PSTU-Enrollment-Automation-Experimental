@@ -6,6 +6,7 @@ class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, null=True)
     department = models.ForeignKey(Department, on_delete=models.CASCADE, null=True)
+    profile_pic = models.ImageField(upload_to='teachers_profile_pics/')
     
     class Meta:
         constraints = [
