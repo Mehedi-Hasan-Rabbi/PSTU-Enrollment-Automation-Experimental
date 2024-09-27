@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 class Faculty(models.Model):
@@ -10,6 +11,16 @@ class Faculty(models.Model):
         # I am using Class to view fields in admin panel writen in admin.py
         # if i don't use class in admin.py then def __str__(self): return f'{self.faculty_name}' this will work
         # and also when i use this field as ForeignKey to others then this fields will show
+        
+
+class FacultyController(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'faculty'], name='unique_faculty_admin')
+        ]
 
 
 class Semester(models.Model):
@@ -53,6 +64,7 @@ class Course(models.Model):
     course_title = models.CharField(max_length=255, unique=True)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE, null=True)
     faculty_name = models.ForeignKey(Faculty, on_delete=models.CASCADE, null=True)
+    credit_hour = models.DecimalField(max_digits = 3, decimal_places = 2, default=0.0)
     
     class Meta:
         constraints = [

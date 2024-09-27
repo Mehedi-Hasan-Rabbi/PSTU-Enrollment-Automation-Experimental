@@ -8,4 +8,3 @@ class TeacherAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'student_id', 'faculty__faculty_name', 'semester__semester_number', 'cgpa')
     list_filter = ('faculty',)
 
-# Register your models here.

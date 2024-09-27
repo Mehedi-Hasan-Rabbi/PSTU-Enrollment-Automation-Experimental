@@ -12,3 +12,8 @@ class Student(models.Model):
     cgpa = models.DecimalField(max_digits = 4, decimal_places = 3, default=0.0)
     profile_pic = models.ImageField(upload_to='students_profile_pics/')
     
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'student_id', 'faculty'], name='unique_student')
+        ]
+    

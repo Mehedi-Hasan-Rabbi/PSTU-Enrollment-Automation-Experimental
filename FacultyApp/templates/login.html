@@ -17,17 +17,18 @@
             <div class="card">
                 <div class="card-body text-center">
                     <div class="mb-4">
-                        <img class="brand" style="height: 20dvh;" src="{% static "images/pstu_logo.png" %}" alt="bootstraper logo">
+                        <img class="brand" style="height: 20dvh;" src="{% static "images/pstu_logo.png" %}" alt="PSTU logo">
                     </div>
                     <h6 class="mb-4 text-muted">Login to your account</h6>
-                    <form action="" method="">
+                    <form action="" method="POST">
+                        {% csrf_token %}
                         <div class="mb-3 text-start">
-                            <label for="email" class="form-label">Email adress</label>
-                            <input type="email" class="form-control" placeholder="Enter Email" required>
+                            <label for="text" class="form-label">Username</label>
+                            <input type="text" name="username" class="form-control" placeholder="Enter Username" required>
                         </div>
                         <div class="mb-3 text-start">
                             <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" placeholder="Password" required>
+                            <input type="password" name="password" class="form-control" placeholder="Password" required>
                         </div>
                         <div class="mb-3 text-start">
                             <div class="form-check">
@@ -37,10 +38,14 @@
                               </label>
                             </div>
                         </div>
-                        <button class="btn btn-primary shadow-2 mb-4">Login</button>
+                        <input class="btn btn-primary shadow-2 mb-4" type="submit" value="Login">
+                        {% comment %} <button >Login</button> {% endcomment %}
                     </form>
+                    {% for msg in messages %}
+                        <h6 style="color: red">{{msg}}</h6>
+                    {% endfor %}
                     <p class="mb-2 text-muted">Forgot password? <a href="{% static "forgot-password.html" %}">Reset</a></p>
-                    <p class="mb-0 text-muted">Don't have account yet? <a href="{% static "signup.html" %}">Signup</a></p>
+                    {% comment %} <p class="mb-0 text-muted">Don't have account yet? <a href="{% static "signup.html" %}">Signup</a></p> {% endcomment %}
                 </div>
             </div>
         </div>

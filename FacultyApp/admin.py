@@ -1,17 +1,22 @@
 from django.contrib import admin
-from .models import Faculty, Semester, Course, Department
+from .models import Faculty, Semester, Course, Department, FacultyController
 
 # Register your models here.
 # admin.site.register(Faculty)
 # admin.site.register(Semester)
 # admin.site.register(Course)
-# admin.site.register(AssignCourse)
 
 @admin.register(Faculty)
 class FacultyAdmin(admin.ModelAdmin):
     list_display = ('faculty_name', 'number_of_semseter') # Display these fields in the admin list view
     search_fields = ('faculty_name',) # Enable search by faculty_name
     list_filter = ('number_of_semseter',) # Enable filtering by number_of_semseter
+    
+@admin.register(FacultyController)
+class FacultyControllerAdmin(admin.ModelAdmin):
+    list_display = ('user', 'faculty')
+    search_fields = ('user__username', 'faculty__faculty_name')
+    list_filter = ('faculty',)
 
 @admin.register(Semester)
 class SemesterAdmin(admin.ModelAdmin):
