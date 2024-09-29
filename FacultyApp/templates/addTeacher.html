@@ -13,8 +13,17 @@ Add New Teacher | Faculty Admin Dashboard
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
+
                     <div class="card-header">Faculty of {{faculty_name}}</div>
                     <div class="card-body">
+                        <!-- Messages for success or error -->
+                        {% if messages %}
+                            {% for msg in messages %}
+                                <div class="alert alert-{{ msg.tags }}">
+                                    <h5 class="alert-title">{{ msg }}</h5>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
                         <form method="POST" enctype="multipart/form-data" accept-charset="utf-8">
                             {% csrf_token %}
                             
@@ -111,14 +120,7 @@ Add New Teacher | Faculty Admin Dashboard
                             </div>
                         </form>
 
-                        <!-- Messages for success or error -->
-                        {% if messages %}
-                            {% for msg in messages %}
-                                <div class="alert alert-{{ msg.tags }}">
-                                    <h5 class="alert-title">{{ msg }}</h5>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
+                        
                     </div>
                 </div>
             </div>

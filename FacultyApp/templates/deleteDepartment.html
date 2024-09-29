@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}
+Delete Department | Faculty Admin Dashboard
+{% endblock title %}
+
+{% block content %}
+<div class="content">
+    <div class="container">
+        <div class="page-title">
+            <h3>Delete Department</h3>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 col-lg-12">
+                <div class="card">
+                    <div class="card-header">Faculty of {{ faculty_name }}</div>
+                    <div class="card-body">
+                        <table class="table table-hover" id="dataTables-example" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>Department Name</th>
+                                    <th>Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for department in all_departments %}
+                                    <tr>
+                                        <td>{{ department.dept_name }}</td>
+                                        <td>
+                                            <form method="POST" action="{% url 'FacultyApp:deleteDepartment' %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="department_id" value="{{ department.id }}">
+                                                <button type="submit" class="btn btn-outline-danger mb-2" 
+                                                        onclick="return confirm('Are you sure you want to delete {{ department.dept_name }}?');">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal to show messages -->
+        <div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="messageModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="messageModalLabel">Notification</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Check if there are messages to display
+        if (document.querySelector('.alert')) {
+            // Show the modal if a message exists
+            $('#messageModal').modal('show');
+        }
+    });
+</script>
+
+{% endblock content %}

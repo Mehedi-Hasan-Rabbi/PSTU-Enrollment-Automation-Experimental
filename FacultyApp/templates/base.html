@@ -52,6 +52,18 @@
                 </li>
 
                 <li>
+                    <a href="#departmentmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle no-caret-down"><i class="fas fa-building"></i> Department</a>
+                    <ul class="collapse list-unstyled" id="departmentmenu">
+                        <li>
+                            <a href="{% url 'FacultyApp:addDepartment' %}"><i class="fas fa-angle-right"></i> Add New Department</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'FacultyApp:deleteDepartment' %}"><i class="fas fa-angle-right"></i> Delete Department</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
                     <a href="{% static "forms.html" %}"><i class="fas fa-file-alt"></i> Forms</a>
                 </li>
                 <li>

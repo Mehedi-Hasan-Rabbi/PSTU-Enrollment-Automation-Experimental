@@ -1,3 +1,5 @@
+import os
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -231,8 +233,14 @@ def deleteTeacher(request):
         teacher_id = request.POST.get('teacher_id')
 
         try:
-            # Get the teacher object and delete it
+            # Get the teacher object
             teacher = Teacher.objects.get(id=teacher_id)
+
+            # Delete the profile picture file if it exists
+            if teacher.profile_pic:
+                profile_pic_path = os.path.join(settings.MEDIA_ROOT, str(teacher.profile_pic))
+                if os.path.isfile(profile_pic_path):
+                    os.remove(profile_pic_path)
 
             # Delete the associated user
             user = teacher.user
@@ -250,4 +258,86 @@ def deleteTeacher(request):
     return render(request, 'deleteTeacher.html', {
         'faculty_name': faculty.faculty_name,
         'all_teachers': all_teachers,
+    })
+    
+    
+@login_required(login_url='FacultyApp:faculty_admin_login')
+def addDepartment(request):
+    faculty_controller = FacultyController.objects.get(user=request.user)
+    faculty = faculty_controller.faculty
+
+    if request.method == 'POST':
+        dept_name = request.POST.get('dept_name')
+
+        # Ensure the department name is provided
+        if not dept_name:
+            messages.error(request, "Please fill out the department name.")
+            return redirect('FacultyApp:addDepartment')
+
+        # Check if the department already exists
+        if Department.objects.filter(dept_name=dept_name, faculty_name=faculty).exists():
+            messages.error(request, f'Department "{dept_name}" already exists under faculty "{faculty.faculty_name}".')
+            return redirect('FacultyApp:addDepartment')
+
+        try:
+            # Create a new department
+            Department.objects.create(
+                dept_name=dept_name,
+                faculty_name=faculty  # Associate with the logged-in faculty
+            )
+            messages.success(request, f'Department "{dept_name}" added successfully!')
+            return redirect('FacultyApp:addDepartment')  # Redirect to the same page or a different page
+        except Exception as e:
+            messages.error(request, str(e))
+
+    return render(request, 'addDepartment.html', {
+        'faculty_name': faculty.faculty_name,
+    })
+    
+    
+@login_required(login_url='FacultyApp:faculty_admin_login')
+def deleteDepartment(request):
+    faculty_controller = FacultyController.objects.get(user=request.user)
+    faculty = faculty_controller.faculty
+    
+    # Get the list of departments for the faculty
+    all_departments = Department.objects.filter(faculty_name=faculty)
+
+    if request.method == 'POST':
+        department_id = request.POST.get('department_id')
+
+        try:
+            # Get the department object
+            department = Department.objects.get(id=department_id)
+
+            # Get all teachers in this department
+            teachers_in_department = Teacher.objects.filter(department=department)
+
+            # Delete profile pictures and associated user accounts
+            for teacher in teachers_in_department:
+                # Delete the profile picture if it exists
+                if teacher.profile_pic:
+                    profile_pic_path = os.path.join(settings.MEDIA_ROOT, str(teacher.profile_pic))
+                    if os.path.isfile(profile_pic_path):
+                        os.remove(profile_pic_path)  # Delete the file from the filesystem
+                
+                # Delete the user associated with the teacher
+                user = teacher.user
+                user.delete()  # Deletes the associated user
+
+            # Now delete the department itself
+            department.delete()
+            messages.success(request, f'Department of {department.dept_name} and all associated teachers deleted successfully!')
+
+        except Department.DoesNotExist:
+            messages.error(request, 'Department does not exist.')
+        except Exception as e:
+            messages.error(request, str(e))
+
+        # Redirect after deletion
+        return redirect('FacultyApp:deleteDepartment')  # Ensure to define this URL pattern
+
+    return render(request, 'deleteDepartment.html', {
+        'faculty_name': faculty.faculty_name,
+        'all_departments': all_departments,
     })
