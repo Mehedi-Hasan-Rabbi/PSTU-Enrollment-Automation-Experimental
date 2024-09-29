@@ -9,6 +9,7 @@ from django.views.decorators.cache import never_cache
 from django.contrib import messages
 from .models import FacultyController, Semester, Course, Faculty, Department
 from TeacherApp.models import Teacher
+from StudentApp.models import Student
 
 # Create your views here.
 def index(request):    
@@ -340,4 +341,117 @@ def deleteDepartment(request):
     return render(request, 'deleteDepartment.html', {
         'faculty_name': faculty.faculty_name,
         'all_departments': all_departments,
+    })
+
+
+
+@login_required(login_url='FacultyApp:faculty_admin_login')
+def addStudent(request):
+    faculty_controller = FacultyController.objects.get(user=request.user)
+    faculty = faculty_controller.faculty
+
+    if request.method == 'POST':
+        # Get form data
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        password_confirmation = request.POST.get('password_confirmation')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        student_id = request.POST.get('student_id')
+        reg_no = request.POST.get('reg_no')
+        phone_number = request.POST.get('phone_number')
+        session = request.POST.get('session')
+        curr_semester = Semester.objects.get(semester_number=request.POST.get('curr_semester'))
+        cgpa = request.POST.get('cgpa')
+        profile_pic = request.FILES.get('profile_pic')
+
+        # Validate password confirmation
+        if password != password_confirmation:
+            messages.error(request, "Passwords do not match!")
+            return redirect('FacultyApp:addStudent')
+
+        # Check if username, email, or phone number already exists
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Username already exists.")
+            return redirect('FacultyApp:addStudent')
+
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "Email already exists.")
+            return redirect('FacultyApp:addStudent')
+
+        if Student.objects.filter(phone_number=phone_number).exists():
+            messages.error(request, "Phone number already exists.")
+            return redirect('FacultyApp:addStudent')
+
+        # Create user and student profile
+        try:
+            user = User.objects.create_user(
+                username=username,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                email=email
+            )
+            student = Student.objects.create(
+                user=user,
+                student_id=student_id,
+                reg_no=reg_no,
+                phone_number=phone_number,
+                session=session,
+                faculty=faculty,
+                curr_semester=curr_semester,
+                cgpa=cgpa,
+                profile_pic=profile_pic
+            )
+            messages.success(request, "Student added successfully!")
+        except Exception as e:
+            messages.error(request, str(e))
+
+        return redirect('FacultyApp:addStudent')
+
+    semesters = Semester.objects.all()
+    return render(request, 'addStudent.html', {
+        'semesters': semesters, 
+        'faculty_name': faculty.faculty_name
+    })
+
+
+@login_required(login_url='FacultyApp:faculty_admin_login')
+def deleteStudent(request):
+    faculty_controller = FacultyController.objects.get(user=request.user)
+    faculty = faculty_controller.faculty
+    
+    # Get the list of students for the faculty
+    all_students = Student.objects.filter(faculty=faculty).select_related('curr_semester')  # Use select_related for efficiency
+
+    if request.method == 'POST':
+        student_id = request.POST.get('student_id')
+
+        try:
+            # Get the student object
+            student = Student.objects.get(id=student_id)
+
+            # Delete the profile picture file if it exists
+            if student.profile_pic:
+                profile_pic_path = os.path.join(settings.MEDIA_ROOT, str(student.profile_pic))
+                if os.path.isfile(profile_pic_path):
+                    os.remove(profile_pic_path)
+
+            # Delete the associated user
+            user = student.user
+            user.delete()  # Deletes the user, which cascades to delete the Student instance
+
+            messages.success(request, f'Student {user.username} deleted successfully!')
+        except Student.DoesNotExist:
+            messages.error(request, 'Student does not exist.')
+        except Exception as e:
+            messages.error(request, str(e))
+
+        # Redirect after deletion
+        return redirect('FacultyApp:deleteStudent')  # Ensure to define this URL pattern
+
+    return render(request, 'deleteStudent.html', {
+        'faculty_name': faculty.faculty_name,
+        'all_students': all_students,
     })

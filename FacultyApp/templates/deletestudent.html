@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}
+Delete Student | Faculty Admin Dashboard
+{% endblock title %}
+
+{% block content %}
+<div class="content">
+    <div class="container">
+
+        <div class="page-title">
+            <h3>Delete Student</h3>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 col-lg-12">
+                <div class="card">
+                    <div class="card-header">Faculty of {{faculty_name}}</div>
+                    <div class="card-body">
+                        <p class="card-title"></p>
+                        <table class="table table-hover" id="dataTables-example" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Student ID</th>
+                                    <th>Reg. No</th>
+                                    <th>First Name</th>
+                                    <th>Semester</th>
+                                    <th>Session</th>
+                                    <th>CGPA</th>
+                                    <th>Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in all_students %}
+                                    <tr>
+                                        <td>{{ student.user.username }}</td>
+                                        <td>{{ student.student_id }}</td>
+                                        <td>{{ student.reg_no }}</td>
+                                        <td>{{ student.user.first_name }}</td>
+                                        <td>{{ student.curr_semester.semester_number }}</td>
+                                        <td>{{ student.session }}</td>
+                                        <td>{{ student.cgpa }}</td>
+                                        <td>
+                                            <form method="POST" action="{% url 'FacultyApp:deleteStudent' %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="student_id" value="{{ student.id }}">
+                                                <button type="submit" class="btn btn-outline-danger mb-2" 
+                                                        onclick="return confirm('Are you sure you want to delete {{ student.user.username }}?');">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal to show messages -->
+        <div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="messageModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="messageModalLabel">Notification</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Check if there are messages to display
+        if (document.querySelector('.alert')) {
+            // Show the modal if a message exists
+            $('#messageModal').modal('show');
+        }
+    });
+</script>
+
+{% endblock content %}

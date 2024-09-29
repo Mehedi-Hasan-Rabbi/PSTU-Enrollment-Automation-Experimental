@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}
+Add New Student | Faculty Admin Dashboard
+{% endblock title %}
+
+{% block content %}
+<div class="content">
+    <div class="container">
+        <div class="page-title">
+            <h3>Add New Student</h3>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">Faculty of {{faculty_name}}</div>
+
+                    {% if messages %}
+                        {% for msg in messages %}
+                            {% if msg.tags == 'success' %}
+                                <div class="alert alert-success">
+                                    <h5 class="alert-title">{{msg}}</h5>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-danger">
+                                    <h5 class="alert-title">{{msg}}</h5>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="card-body">
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            <!-- Username -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="username">Username</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="username" placeholder="e.g. abdul.cse.16" class="form-control">
+                                    <small class="form-text">Format: name.faculty.batchnumber</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Password -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="password">Password</label>
+                                <div class="col-sm-10">
+                                    <input type="password" name="password" placeholder="Password" class="form-control">
+                                </div>
+                            </div>
+                            
+                            <!-- Confirm Password -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="password_confirmation">Confirm Password</label>
+                                <div class="col-sm-10">
+                                    <input type="password" name="password_confirmation" placeholder="Confirm Password" class="form-control">
+                                </div>
+                            </div>
+                            
+                            <!-- First Name -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="first_name">First Name</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="first_name" placeholder="First Name" class="form-control">
+                                </div>
+                            </div>
+                            
+                            <!-- Last Name -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="last_name">Last Name</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="last_name" placeholder="Last Name" class="form-control">
+                                </div>
+                            </div>
+                            
+                            <!-- Email -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="email">Email</label>
+                                <div class="col-sm-10">
+                                    <input type="email" name="email" placeholder="e.g. abdul@example.com" class="form-control">
+                                </div>
+                            </div>
+                            
+                            <!-- Student ID -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="student_id">Student ID</label>
+                                <div class="col-sm-10">
+                                    <input type="number" name="student_id" placeholder="e.g. 2202052" class="form-control">
+                                </div>
+                            </div>
+
+                            <!-- Registration Number -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="reg_no">Registration Number</label>
+                                <div class="col-sm-10">
+                                    <input type="number" name="reg_no" placeholder="e.g. 09535" class="form-control">
+                                </div>
+                            </div>
+                            
+                            <!-- Phone Number -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="phone_number">Phone Number</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="phone_number" placeholder="+8801XXXXXXXXX" class="form-control">
+                                </div>
+                            </div>
+
+                            <!-- Session -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="session">Session</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="session" placeholder="Session (e.g. 2022-2023)" class="form-control">
+                                </div>
+                            </div>
+
+                            <!-- Current Semester -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="curr_semester">Current Semester</label>
+                                <div class="col-sm-10">
+                                    <select name="curr_semester" class="form-select">
+                                        {% for num in semesters %}
+                                            <option value="{{ num.semester_number }}">Semester {{ num.semester_number }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- CGPA -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="cgpa">CGPA</label>
+                                <div class="col-sm-10">
+                                    <input type="number" name="cgpa" step="any" min="0" max="4.0" placeholder="CGPA" class="form-control">
+                                </div>
+                            </div>
+
+                            <!-- Profile Picture -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="profile_pic">Profile Picture</label>
+                                <div class="col-sm-10">
+                                    <input type="file" name="profile_pic" accept="image/*" class="form-control">
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="mb-3 row">
+                                <div class="col-sm-10 offset-sm-2">
+                                    <input type="submit" class="btn btn-primary" value="Add new student">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

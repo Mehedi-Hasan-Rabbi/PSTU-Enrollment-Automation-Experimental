@@ -38,6 +38,18 @@
                         </li>
                     </ul>
                 </li>
+
+                <li>
+                    <a href="#studentmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle no-caret-down"><i class="fas fa-user-graduate"></i> Student</a>
+                    <ul class="collapse list-unstyled" id="studentmenu">
+                        <li>
+                            <a href="{% url 'FacultyApp:addStudent' %}"><i class="fas fa-angle-right"></i> Add New Student</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'FacultyApp:deleteStudent' %}"><i class="fas fa-angle-right"></i> Remove Student</a>
+                        </li>
+                    </ul>
+                </li>
                 
                 <li>
                     <a href="#coursemenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle no-caret-down"><i class="fas fa-book-medical"></i> Course</a>
