@@ -11,6 +11,7 @@
     <link href="{% static "vendor/fontawesome/css/solid.min.css" %}" rel="stylesheet">
     <link href="{% static "vendor/fontawesome/css/brands.min.css" %}" rel="stylesheet">
     <link href="{% static "vendor/bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
+    <link href="{% static "vendor/datatables/datatables.min.css" %}" rel="stylesheet">
     <link href="{% static "css/master.css" %}" rel="stylesheet">
     <link href="{% static "vendor/flagiconcss/css/flag-icon.min.css" %}" rel="stylesheet">
 </head>
@@ -25,10 +26,22 @@
                 <li>
                     <a href="{% url 'FacultyApp:dashboard' %}"><i class="fas fa-home"></i> Dashboard</a>
                 </li>
+
+                <li>
+                    <a href="#teachermenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle no-caret-down"><i class="fas fa-chalkboard-teacher"></i> Teacher</a>
+                    <ul class="collapse list-unstyled" id="teachermenu">
+                        <li>
+                            <a href="{% url 'FacultyApp:addTeacher' %}"><i class="fas fa-angle-right"></i> Add New Teacher</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'FacultyApp:deleteTeacher' %}"><i class="fas fa-angle-right"></i> Remove Teacher</a>
+                        </li>
+                    </ul>
+                </li>
                 
                 <li>
-                    <a href="#uielementsmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle no-caret-down"><i class="fas fa-book-medical"></i> Course</a>
-                    <ul class="collapse list-unstyled" id="uielementsmenu">
+                    <a href="#coursemenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle no-caret-down"><i class="fas fa-book-medical"></i> Course</a>
+                    <ul class="collapse list-unstyled" id="coursemenu">
                         <li>
                             <a href="{% url 'FacultyApp:addCourse' %}"><i class="fas fa-angle-right"></i> Add New Course</a>
                         </li>
@@ -141,8 +154,14 @@
     <script src="{% static "vendor/jquery/jquery.min.js" %}"></script>
     <script src="{% static "vendor/bootstrap/js/bootstrap.bundle.min.js" %}"></script>
     <script src="{% static "vendor/chartsjs/Chart.min.js" %}"></script>
+    <script src="{% static "vendor/datatables/datatables.min.js" %}"></script>
+    <script src="{% static "js/initiate-datatables.js" %}"></script>
     <script src="{% static "js/dashboard-charts.js" %}"></script>
     <script src="{% static "js/script.js" %}"></script>
-</body>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </body>
 
 </html>

@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}
+Add New Teacher | Faculty Admin Dashboard
+{% endblock title %}
+
+{% block content %}
+<div class="content">
+    <div class="container">
+        <div class="page-title">
+            <h3>Add New Teacher</h3>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">Faculty of {{faculty_name}}</div>
+                    <div class="card-body">
+                        <form method="POST" enctype="multipart/form-data" accept-charset="utf-8">
+                            {% csrf_token %}
+                            
+                            <!-- Username -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="username">Username</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="username" placeholder="e.g. abdul.cce" class="form-control" required>
+                                    <small class="form-text">Format: name.dept</small>
+                                </div>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="password">Password</label>
+                                <div class="col-sm-10">
+                                    <input type="password" name="password" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <!-- Confirm Password -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="password_confirmation">Confirm Password</label>
+                                <div class="col-sm-10">
+                                    <input type="password" name="password_confirmation" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <!-- First Name -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="first_name">First Name</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="first_name" placeholder="e.g. Md. Abdul" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <!-- Last Name -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="last_name">Last Name</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="last_name" placeholder="e.g. Karim" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <!-- Email Address -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="email">Email Address</label>
+                                <div class="col-sm-10">
+                                    <input type="email" name="email" placeholder="e.g. abdulkarim@example.com" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <!-- Phone Number -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="phone_number">Phone Number</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="phone_number" placeholder="e.g. +8801XXXXXXXXX" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <!-- Faculty -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="faculty">Faculty</label>
+                                <div class="col-sm-10">
+                                    {{ faculty_name }}
+                                </div>
+                            </div>
+
+                            <!-- Department -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="department">Department</label>
+                                <div class="col-sm-10">
+                                    <select name="department" class="form-select" required>
+                                        {% for department in departments %}
+                                            <option value="{{ department.id }}">{{ department.dept_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Profile Picture -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="profile_pic">Profile Picture</label>
+                                <div class="col-sm-10">
+                                    <input type="file" name="profile_pic" class="form-control" accept="image/*" required>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="mb-3 row">
+                                <div class="col-sm-10 offset-sm-2">
+                                    <input type="submit" class="btn btn-primary" value="Add New Teacher">
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Messages for success or error -->
+                        {% if messages %}
+                            {% for msg in messages %}
+                                <div class="alert alert-{{ msg.tags }}">
+                                    <h5 class="alert-title">{{ msg }}</h5>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
