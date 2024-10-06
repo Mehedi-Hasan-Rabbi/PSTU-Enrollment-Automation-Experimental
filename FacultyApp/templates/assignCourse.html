@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}
+Assign Course to Teacher | Faculty Admin Dashboard
+{% endblock title %}
+
+{% block content %}
+<div class="content">
+    <div class="container">
+        <div class="page-title">
+            <h3>Assign Course to Teacher</h3>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+
+                    <div class="card-header">Faculty of {{faculty_name}}</div>
+                    <div class="card-body">
+                        <!-- Messages for success or error -->
+                        {% if messages %}
+                            {% for msg in messages %}
+                                <div class="alert alert-{{ msg.tags }}">
+                                    <h5 class="alert-title">{{ msg }}</h5>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        <!-- Form to Assign Course to Teacher -->
+                        <form method="POST" action="{% url 'FacultyApp:assignCourse' %}">
+                            {% csrf_token %}
+                            
+                            <!-- Select Teacher -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="teacher_id">Select Teacher</label>
+                                <div class="col-sm-10">
+                                    <select name="teacher_id" class="form-select" required>
+                                        {% for teacher in all_teachers %}
+                                            <option value="{{ teacher.id }}">{{ teacher.user.first_name }} {{ teacher.user.last_name }} ({{ teacher.user.username }})  - {{ teacher.department.dept_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Select Course -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="course_id">Select Course</label>
+                                <div class="col-sm-10">
+                                    <select name="course_id" class="form-select" required>
+                                        {% for course in all_courses %}
+                                            <option value="{{ course.course_code }}">{{ course.course_title }} ({{ course.course_code }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="mb-3 row">
+                                <div class="col-sm-10 offset-sm-2">
+                                    <input type="submit" class="btn btn-primary" value="Assign Course">
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

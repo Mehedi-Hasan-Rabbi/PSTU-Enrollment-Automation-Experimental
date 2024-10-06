@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.views.decorators.cache import never_cache
 from django.contrib import messages
 from .models import FacultyController, Semester, Course, Faculty, Department
-from TeacherApp.models import Teacher
+from TeacherApp.models import Teacher, Course_Instructor
 from StudentApp.models import Student
 
 # Create your views here.
@@ -454,4 +454,45 @@ def deleteStudent(request):
     return render(request, 'deleteStudent.html', {
         'faculty_name': faculty.faculty_name,
         'all_students': all_students,
+    })
+    
+    
+@login_required(login_url='FacultyApp:faculty_admin_login')
+def assignCourse(request):
+    faculty_controller = FacultyController.objects.get(user=request.user)
+    faculty = faculty_controller.faculty
+    
+    # Fetch all teachers and courses related to the faculty
+    all_teachers = Teacher.objects.filter(faculty=faculty).select_related('department')
+    all_courses = Course.objects.filter(faculty_name=faculty)
+    
+    if request.method == 'POST':
+        teacher_id = request.POST.get('teacher_id')
+        course_id = request.POST.get('course_id')
+
+        try:
+            teacher = Teacher.objects.get(id=teacher_id)
+            course = Course.objects.get(course_code=course_id)
+
+            # Check if the course is already assigned
+            if Course_Instructor.objects.filter(teacher_id=teacher, courseinfo=course).exists():
+                messages.warning(request, f'This course is already assigned to {teacher.user.username}.')
+            else:
+                # Create a new Course_Instructor record
+                Course_Instructor.objects.create(teacher_id=teacher, courseinfo=course)
+                messages.success(request, f'Course {course.course_code} assigned to {teacher.user.username} successfully!')
+
+        except Teacher.DoesNotExist:
+            messages.error(request, 'Selected teacher does not exist.')
+        except Course.DoesNotExist:
+            messages.error(request, 'Selected course does not exist.')
+        except Exception as e:
+            messages.error(request, str(e))
+
+        return redirect('FacultyApp:assignCourse')
+
+    return render(request, 'assignCourse.html', {
+        'faculty_name': faculty.faculty_name,
+        'all_teachers': all_teachers,
+        'all_courses': all_courses,
     })

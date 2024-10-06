@@ -1,0 +1,46 @@
+{% extends "teacher_base.html" %}
+
+{% block title %}
+My Courses | Teacher Dashboard
+{% endblock title %}
+
+{% block content %}
+<div class="content">
+    <div class="container">
+        <div class="page-title">
+            <h3>Courses Assigned to {{ teacher_name }}</h3>
+            <hr>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                {% if assigned_courses %}
+                    <div class="row">
+                        {% for instructor in assigned_courses %}
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <h5 class="card-header">{{ instructor.courseinfo.course_title }}</h5>
+                                    <div class="card-body">
+                                        <p class="card-text">Course Code: {{ instructor.courseinfo.course_code }}</p>
+                                        <p class="card-text">Credit Hours: {{ instructor.courseinfo.credit_hour }}</p>
+                                        <p class="card-text">Semester: {{ instructor.courseinfo.semester.semester_number }}</p>
+                                    </div>
+                                    <div class="card-footer text-end">
+                                        <!-- Button to Enter Marks page -->
+                                        <a href="{% url 'TeacherApp:enter_marks' instructor.courseinfo.course_code %}" class="btn btn-primary">
+                                            Enter Marks
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        No courses have been assigned to you yet.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

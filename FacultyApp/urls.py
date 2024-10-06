@@ -20,4 +20,6 @@ urlpatterns = [
     
     path('faculty_admin/addStudent/', views.addStudent, name="addStudent"),
     path('faculty_admin/deleteStudent/', views.deleteStudent, name="deleteStudent"),
+    
+    path('faculty_admin/assignCourse/', views.assignCourse, name="assignCourse"),
 ]
