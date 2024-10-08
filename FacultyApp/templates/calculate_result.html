@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Calculate Result{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">Calculate Result</h2>
+    
+    <div class="row">
+        {% for semester in semesters %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Semester {{ semester.semester_number }}</h5>
+                        <hr>
+                        <p class="card-text">Number of Students: {{ semester.student_count }}</p>
+                        <a href="{% url 'FacultyApp:generate_results' semester.semester_number %}" 
+                           class="btn btn-primary {% if semester.student_count == 0 %}disabled{% endif %}">
+                           Generate Result
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

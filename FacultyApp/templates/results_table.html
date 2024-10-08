@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Semester {{ semester.semester_number }} Result Calculation
+{% endblock title %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Results for Semester {{ semester.semester_number }}</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Student ID</th>
+                {% for course in course_codes %}
+                    <th>{{ course.course_code }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+                <tr>
+                    <td>{{ result.student_id }}</td>
+                    {% for key, value in result.marks.items %}
+                        <td>{{ value }}</td> 
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+{% endblock %}

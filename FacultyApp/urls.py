@@ -22,4 +22,7 @@ urlpatterns = [
     path('faculty_admin/deleteStudent/', views.deleteStudent, name="deleteStudent"),
     
     path('faculty_admin/assignCourse/', views.assignCourse, name="assignCourse"),
+    
+    path('faculty_admin/calculate_result/', views.calculate_result, name='calculate_result'),
+    path('faculty_admin/generate_result/<int:semester_number>/', views.generate_results, name='generate_results'),  # Add this line
 ]

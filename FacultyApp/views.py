@@ -4,18 +4,20 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import cache_control
 from django.core.exceptions import ValidationError
 from django.views.decorators.cache import never_cache
 from django.contrib import messages
 from .models import FacultyController, Semester, Course, Faculty, Department
 from TeacherApp.models import Teacher, Course_Instructor
 from StudentApp.models import Student
+from ResultApp.models import Course_Mark
 
 # Create your views here.
 def index(request):    
     return render(request, 'index.html')
 
-
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def faculty_admin_login(request):
     if request.user.is_authenticated:
         if FacultyController.objects.filter(user=request.user).exists():
@@ -49,7 +51,7 @@ def faculty_admin_login(request):
 
     return response
 
-
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def faculty_admin_logout(request):
     logout(request)
     messages.success(request, 'You have been logged out successfully.')  # Optional success message
@@ -64,6 +66,7 @@ def faculty_admin_logout(request):
 
 
 @login_required(login_url='FacultyApp:faculty_admin_login')  # Redirect to login if not authenticated
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def dashboard(request):
     # Create response object with the rendered template
     response = render(request, 'dashboard.html', {'user': request.user})
@@ -77,6 +80,7 @@ def dashboard(request):
 
 
 @login_required(login_url='FacultyApp:faculty_admin_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def addCourse(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
@@ -119,6 +123,7 @@ def addCourse(request):
     
 
 @login_required(login_url='FacultyApp:faculty_admin_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def deleteCourse(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
@@ -146,6 +151,7 @@ def deleteCourse(request):
     
 
 @login_required(login_url='FacultyApp:faculty_admin_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def addTeacher(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
@@ -223,6 +229,7 @@ def addTeacher(request):
 
 
 @login_required(login_url='FacultyApp:faculty_admin_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def deleteTeacher(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
@@ -263,6 +270,7 @@ def deleteTeacher(request):
     
     
 @login_required(login_url='FacultyApp:faculty_admin_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def addDepartment(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
@@ -297,6 +305,7 @@ def addDepartment(request):
     
     
 @login_required(login_url='FacultyApp:faculty_admin_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def deleteDepartment(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
@@ -346,6 +355,7 @@ def deleteDepartment(request):
 
 
 @login_required(login_url='FacultyApp:faculty_admin_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def addStudent(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
@@ -418,6 +428,7 @@ def addStudent(request):
 
 
 @login_required(login_url='FacultyApp:faculty_admin_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def deleteStudent(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
@@ -458,6 +469,7 @@ def deleteStudent(request):
     
     
 @login_required(login_url='FacultyApp:faculty_admin_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def assignCourse(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
@@ -496,3 +508,66 @@ def assignCourse(request):
         'all_teachers': all_teachers,
         'all_courses': all_courses,
     })
+
+
+
+# ------------------ New Views for Semester Results ------------------
+
+@login_required(login_url='FacultyApp:faculty_admin_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def calculate_result(request):
+    faculty_controller = FacultyController.objects.get(user=request.user)
+    faculty = faculty_controller.faculty
+    num_semesters = faculty.number_of_semseter
+
+    # Get all semesters up to the number of semesters for this faculty
+    semesters = Semester.objects.filter(semester_number__lte=num_semesters)
+
+    # Add student count for each semester
+    for semester in semesters:
+        semester.student_count = Student.objects.filter(curr_semester=semester, faculty=faculty).count()
+
+    context = {
+        'semesters': semesters
+    }
+
+    return render(request, 'calculate_result.html', context)
+
+
+@login_required(login_url='FacultyApp:faculty_admin_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def generate_results(request, semester_number):
+    faculty_controller = FacultyController.objects.get(user=request.user)
+    faculty = faculty_controller.faculty
+
+    # Get the semester object
+    semester = Semester.objects.get(semester_number=semester_number)
+    
+    # Get all students in this faculty and semester
+    students = Student.objects.filter(faculty=faculty, curr_semester=semester).order_by("student_id")
+
+    # Get all courses for this semester and faculty
+    course_codes = Course.objects.filter(semester=semester, faculty_name=faculty)
+
+    results = []
+    
+    # Prepare a list of dictionaries for each student
+    for student in students:
+        student_marks = {}
+        for course in course_codes:
+            course_mark = Course_Mark.objects.filter(student_id=student, course_id=course).first()
+            student_marks[course.course_code] = course_mark.final_exam if course_mark else 'N/A'
+        results.append({
+            'student_id': student.student_id,
+            'marks': student_marks
+        })
+    
+    # print(f"{course_codes}")
+    # print(f"{results}")
+    context = {
+        'semester': semester,
+        'course_codes': course_codes,
+        'results': results
+    }
+
+    return render(request, 'results_table.html', context)
