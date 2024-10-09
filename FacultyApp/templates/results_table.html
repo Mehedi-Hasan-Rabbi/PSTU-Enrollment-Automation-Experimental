@@ -14,6 +14,7 @@ Semester {{ semester.semester_number }} Result Calculation
                 {% for course in course_codes %}
                     <th>{{ course.course_code }}</th>
                 {% endfor %}
+                <th>GPA</th>
             </tr>
         </thead>
         <tbody>
@@ -21,11 +22,11 @@ Semester {{ semester.semester_number }} Result Calculation
                 <tr>
                     <td>{{ result.student_id }}</td>
                     {% for key, value in result.marks.items %}
-                        <td>{{ value }}</td> 
+                        <td>{{ value.grade_point }}</td> 
                     {% endfor %}
+                    <td>{{ result.gpa }}</td>
                 </tr>
             {% endfor %}
-
         </tbody>
     </table>
 </div>

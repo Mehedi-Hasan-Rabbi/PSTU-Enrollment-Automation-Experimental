@@ -11,7 +11,7 @@ from django.contrib import messages
 from .models import FacultyController, Semester, Course, Faculty, Department
 from TeacherApp.models import Teacher, Course_Instructor
 from StudentApp.models import Student
-from ResultApp.models import Course_Mark
+from ResultApp.views import get_student_mark
 
 # Create your views here.
 def index(request):    
@@ -543,31 +543,6 @@ def generate_results(request, semester_number):
     # Get the semester object
     semester = Semester.objects.get(semester_number=semester_number)
     
-    # Get all students in this faculty and semester
-    students = Student.objects.filter(faculty=faculty, curr_semester=semester).order_by("student_id")
-
-    # Get all courses for this semester and faculty
-    course_codes = Course.objects.filter(semester=semester, faculty_name=faculty)
-
-    results = []
-    
-    # Prepare a list of dictionaries for each student
-    for student in students:
-        student_marks = {}
-        for course in course_codes:
-            course_mark = Course_Mark.objects.filter(student_id=student, course_id=course).first()
-            student_marks[course.course_code] = course_mark.final_exam if course_mark else 'N/A'
-        results.append({
-            'student_id': student.student_id,
-            'marks': student_marks
-        })
-    
-    # print(f"{course_codes}")
-    # print(f"{results}")
-    context = {
-        'semester': semester,
-        'course_codes': course_codes,
-        'results': results
-    }
+    context = get_student_mark(faculty, semester)
 
     return render(request, 'results_table.html', context)

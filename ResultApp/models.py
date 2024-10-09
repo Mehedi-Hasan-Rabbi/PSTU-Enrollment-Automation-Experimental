@@ -14,7 +14,15 @@ class Course_Mark(models.Model):
     
 
 class Semester_Result(models.Model):
+    REMARK_CHOICES = [
+        ("Passed", 'Passed'),
+        ("Failed", 'Failed'),
+        ("Conditional Passed", 'Conditional Passed'),
+    ]
+    
     student_id = models.ForeignKey(Student, on_delete=models.CASCADE, null=True)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE, null=True)
     gpa = models.DecimalField(max_digits = 4, decimal_places = 3, default=0.0)
     cgpa = models.DecimalField(max_digits = 4, decimal_places = 3, default=0.0)
+    credit_earned = models.DecimalField(max_digits = 5, decimal_places = 2, default=0.0)
+    remark = models.CharField(max_length=50, choices=REMARK_CHOICES, default="Failed")
