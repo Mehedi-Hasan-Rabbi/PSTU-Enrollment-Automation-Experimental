@@ -24,5 +24,6 @@ class Semester_Result(models.Model):
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE, null=True)
     gpa = models.DecimalField(max_digits = 4, decimal_places = 3, default=0.0)
     cgpa = models.DecimalField(max_digits = 4, decimal_places = 3, default=0.0)
-    credit_earned = models.DecimalField(max_digits = 5, decimal_places = 2, default=0.0)
+    curr_sem_credit_earned = models.DecimalField(max_digits = 5, decimal_places = 2, default=0.0)
+    cumulative_credit_earned = models.DecimalField(max_digits = 5, decimal_places = 2, default=0.0)
     remark = models.CharField(max_length=50, choices=REMARK_CHOICES, default="Failed")

@@ -36,7 +36,7 @@ Enter Marks | {{ course.course_title }}
                     <tr>
                         <td>{{ student.student_id }}</td>
                         <td>
-                            <input type="number" step="0.01" name="attendance_{{ student.id }}" required max="10" min="0"
+                            <input type="number" step="0.01" name="attendance_{{ student.id }}" required min="7" max="10" min="0"
                                    value="{{ existing_marks|dict_key:student.id|dict_key:'attendance'|default:'0' }}">
                         </td>
                         <td>

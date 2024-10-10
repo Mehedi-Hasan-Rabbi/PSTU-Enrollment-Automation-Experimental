@@ -133,9 +133,9 @@ def enter_marks(request, course_code):
                 final_exam = float(request.POST.get(f'final_exam_{student.id}', 0))
 
                 # Server-side validation
-                if attendance > 10 or assignment > 5 or mid_exam > 15 or final_exam > 70:
+                if attendance > 10 or attendance < 7 or assignment > 5 or mid_exam > 15 or final_exam > 70:
                     messages.error(request, f"Invalid marks for {student.student_id}: "
-                                            f"Attendance must be <= 10, Assignment <= 5, "
+                                            f"Attendance must be between 7-10, Assignment <= 5, "
                                             f"Mid Exam <= 15, Final Exam <= 70.")
                     return redirect('TeacherApp:enter_marks', course_code=course_code)
 

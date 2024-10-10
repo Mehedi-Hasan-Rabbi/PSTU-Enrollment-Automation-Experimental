@@ -519,7 +519,7 @@ def calculate_result(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
     num_semesters = faculty.number_of_semseter
-
+    # print(f"FacultyApp(view.py) calculate_result:{Faculty}")
     # Get all semesters up to the number of semesters for this faculty
     semesters = Semester.objects.filter(semester_number__lte=num_semesters)
 
@@ -542,7 +542,7 @@ def generate_results(request, semester_number):
 
     # Get the semester object
     semester = Semester.objects.get(semester_number=semester_number)
-    
+    # print(f"FacultyApp(view.py) generate_result:{Faculty}")
     context = get_student_mark(faculty, semester)
 
     return render(request, 'results_table.html', context)

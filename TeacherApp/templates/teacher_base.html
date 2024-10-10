@@ -31,7 +31,7 @@
                     <a href="{% url 'TeacherApp:myCourses' %}"><i class="fas fa-person-chalkboard"></i> My Course</a>
                 </li>
 
-                <li>
+                {% comment %} <li>
                     <a href="{% static "forms.html" %}"><i class="fas fa-file-alt"></i> Forms</a>
                 </li>
                 <li>
@@ -76,7 +76,7 @@
                 </li>
                 <li>
                     <a href="{% static "settings.html" %}"><i class="fas fa-cog"></i>Settings</a>
-                </li>
+                </li> {% endcomment %}
             </ul>
         </nav>
         <div id="body" class="active">
