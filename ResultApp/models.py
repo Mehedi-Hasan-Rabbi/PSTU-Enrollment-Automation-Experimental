@@ -4,6 +4,19 @@ from FacultyApp.models import Course, Semester
 
 # Create your models here.
 class Course_Mark(models.Model):
+    LETTER_GRADE_CHOICES = [
+        ("A+", 'A+'),
+        ("A", 'A'),
+        ("A-", 'A-'),
+        ("B+", 'B+'),
+        ("B", 'B'),
+        ("B-", 'B-'),
+        ("C+", 'C+'),
+        ("C", 'C'),
+        ("D", 'D'),
+        ("F", 'F'),
+    ]
+    
     course_id = models.ForeignKey(Course, on_delete=models.CASCADE, null=True)
     student_id = models.ForeignKey(Student, on_delete=models.CASCADE, null=True)
     attendance = models.DecimalField(max_digits=4, decimal_places=2, null=True)
@@ -11,6 +24,8 @@ class Course_Mark(models.Model):
     mid_exam = models.DecimalField(max_digits=4, decimal_places=2, null=True)
     final_exam = models.DecimalField(max_digits=4, decimal_places=2, null=True)
     total = models.DecimalField(max_digits=5, decimal_places=2, null=True)
+    letter_grade = models.CharField(max_length=5, choices=LETTER_GRADE_CHOICES, default='F')
+    grade_point = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)
     
 
 class Semester_Result(models.Model):

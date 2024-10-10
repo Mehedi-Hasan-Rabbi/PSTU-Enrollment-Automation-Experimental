@@ -28,32 +28,45 @@ Enter Marks | {{ course.course_title }}
                         <th>Assignment</th>
                         <th>Mid Exam</th>
                         <th>Final Exam</th>
-                        <th>Total Mark</th>  <!-- Added Total Mark header -->
+                        <th>Total Mark</th>
+                        <th>Letter Grade</th>
+                        <th>Grade Point</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for student in students %}
                     <tr>
                         <td>{{ student.student_id }}</td>
-                        <td>
+
+                        {% comment %} Remove placeholder and set default:'0' to see 0 in the input field if mark is not given. Example is given below {% endcomment %}
+                        {% comment %} <td>
                             <input type="number" step="0.01" name="attendance_{{ student.id }}" required min="7" max="10" min="0"
                                    value="{{ existing_marks|dict_key:student.id|dict_key:'attendance'|default:'0' }}">
+                        </td>  {% endcomment %}
+                        <td>
+                            <input placeholder="Mark not given" type="number" step="0.01" name="attendance_{{ student.id }}" required min="7" max="10" min="0"
+                                   value="{{ existing_marks|dict_key:student.id|dict_key:'attendance'|default:'' }}">
                         </td>
                         <td>
-                            <input type="number" step="0.01" name="assignment_{{ student.id }}" required max="5" min="0"
-                                   value="{{ existing_marks|dict_key:student.id|dict_key:'assignment'|default:'0' }}">
+                            <input placeholder="Mark not given" type="number" step="0.01" name="assignment_{{ student.id }}" required max="5" min="0"
+                                   value="{{ existing_marks|dict_key:student.id|dict_key:'assignment'|default:'' }}">
                         </td>
                         <td>
-                            <input type="number" step="0.01" name="mid_exam_{{ student.id }}" required max="15" min="0"
-                                   value="{{ existing_marks|dict_key:student.id|dict_key:'mid_exam'|default:'0' }}">
+                            <input placeholder="Mark not given" type="number" step="0.01" name="mid_exam_{{ student.id }}" required max="15" min="0"
+                                   value="{{ existing_marks|dict_key:student.id|dict_key:'mid_exam'|default:'' }}">
                         </td>
                         <td>
-                            <input type="number" step="0.01" name="final_exam_{{ student.id }}" required max="70" min="0"
-                                   value="{{ existing_marks|dict_key:student.id|dict_key:'final_exam'|default:'0' }}">
+                            <input placeholder="Mark not given" type="number" step="0.01" name="final_exam_{{ student.id }}" required max="70" min="0"
+                                   value="{{ existing_marks|dict_key:student.id|dict_key:'final_exam'|default:'' }}">
                         </td>
                         <td>
-                            <!-- Fetch and display total mark -->
                             {{ existing_marks|dict_key:student.id|dict_key:'total'|default:'0' }}
+                        </td>
+                        <td>
+                            {{ existing_marks|dict_key:student.id|dict_key:'letter_grade'|default:'F' }}
+                        </td>
+                        <td>
+                            {{ existing_marks|dict_key:student.id|dict_key:'grade_point'|default:'0' }}
                         </td>
                     </tr>
                     {% endfor %}

@@ -94,6 +94,30 @@ def myCourses(request):
     return response
 
 
+
+def calculate_grade_point(marks):
+    if marks >= 80:
+        return [4.00, 'A+']
+    elif marks >= 75:
+        return [3.75, 'A']
+    elif marks >= 70:
+        return [3.50, 'A-']
+    elif marks >= 65:
+        return [3.25, 'B+']
+    elif marks >= 60:
+        return [3.00, 'B']
+    elif marks >= 55:
+        return [2.75, 'B-']
+    elif marks >= 50:
+        return [2.50, 'C+']
+    elif marks >= 45:
+        return [2.25, 'C']
+    elif marks >= 40:
+        return [2.00, 'D']
+    else:
+        return [0.00, 'F']  # F grade
+    
+
 @login_required(login_url='TeacherApp:teacher_login')
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def enter_marks(request, course_code):
@@ -116,7 +140,10 @@ def enter_marks(request, course_code):
                 'assignment': mark.assignment,
                 'mid_exam': mark.mid_exam,
                 'final_exam': mark.final_exam,
-                'total': mark.total
+                'total': mark.total,
+                'letter_grade': mark.letter_grade,
+                'grade_point': mark.grade_point,
+
             }
             for mark in Course_Mark.objects.filter(course_id=course, student_id__in=students)
         }
@@ -140,7 +167,9 @@ def enter_marks(request, course_code):
                     return redirect('TeacherApp:enter_marks', course_code=course_code)
 
                 total = attendance + assignment + mid_exam + final_exam
-
+                
+                grade_point, letter_grade = calculate_grade_point(total)
+                
                 # Create or update the student's marks
                 Course_Mark.objects.update_or_create(
                     student_id=student,
@@ -150,7 +179,9 @@ def enter_marks(request, course_code):
                         'assignment': assignment,
                         'mid_exam': mid_exam,
                         'final_exam': final_exam,
-                        'total': total
+                        'total': total,
+                        'letter_grade' : letter_grade,
+                        'grade_point' : grade_point
                     }
                 )
 
