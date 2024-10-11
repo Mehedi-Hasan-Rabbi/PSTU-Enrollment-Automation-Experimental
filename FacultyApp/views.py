@@ -373,7 +373,7 @@ def addStudent(request):
         phone_number = request.POST.get('phone_number')
         session = request.POST.get('session')
         curr_semester = Semester.objects.get(semester_number=request.POST.get('curr_semester'))
-        cgpa = request.POST.get('cgpa')
+        # cgpa = request.POST.get('cgpa')
         profile_pic = request.FILES.get('profile_pic')
 
         # Validate password confirmation
@@ -411,7 +411,7 @@ def addStudent(request):
                 session=session,
                 faculty=faculty,
                 curr_semester=curr_semester,
-                cgpa=cgpa,
+                # cgpa=cgpa,
                 profile_pic=profile_pic
             )
             messages.success(request, "Student added successfully!")

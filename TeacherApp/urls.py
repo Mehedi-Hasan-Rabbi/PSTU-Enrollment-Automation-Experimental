@@ -10,4 +10,5 @@ urlpatterns = [
     path('myCourses/', views.myCourses, name="myCourses"),
     
     path('enterMarks/<str:course_code>/', views.enter_marks, name="enter_marks"),
+    path('generate_pdf/<str:course_code>/', views.generate_pdf, name='generate_pdf'),
 ]

@@ -41,8 +41,9 @@ def calculate_gpa(student, semester):
     for course in courses:
         # Get course marks for this student and course
         course_mark = Course_Mark.objects.filter(student_id=student, course_id=course).first()
-
-        if course_mark and course_mark.total:
+        print(f"{course_mark.course_id} - {course_mark.total}")
+        
+        if course_mark and course_mark.total >= 40.00:
             numerical_marks = course_mark.total
             grade_point = calculate_grade_point(numerical_marks)
             credit_hour = course.credit_hour
@@ -98,6 +99,37 @@ def calculate_cgpa(student, current_semester, current_gpa, current_credits):
 
 
 
+import math
+
+def remark(gpa, cgpa, student_marks, semester_number):
+    # Check if any course has a grade point of 0.00 (F grade)
+    total_courses = len(student_marks)
+    f_grade_count = sum(1 for mark in student_marks.values() if mark['grade_point'] == 0.00)
+
+    # Determine the maximum allowed F grades (50% of courses)
+    max_f_grades_allowed = math.ceil(total_courses / 2) if total_courses % 2 != 0 else total_courses / 2
+    print(f"{max_f_grades_allowed} - {f_grade_count}")
+    # For the first semester (no "Conditional Passed" logic)
+    if semester_number == 1:
+        if gpa >= 2.00 and f_grade_count == 0:
+            return "Passed"
+        elif gpa >= 2.00 and float(f_grade_count) <= max_f_grades_allowed:
+            return "Conditional Passed"
+        else:
+            return "Failed"
+
+    # For subsequent semesters (Rule 2 logic)
+    else:
+        if gpa >= 2.00 and cgpa >= 2.25 and f_grade_count == 0:
+            return "Passed"
+        elif gpa >= 2.00 and cgpa >= 2.25 and f_grade_count <= max_f_grades_allowed:
+            return "Conditional Passed"
+        else:
+            return "Failed"
+
+
+
+
 def get_student_mark(faculty, semester):
     students = Student.objects.filter(faculty=faculty, curr_semester=semester).order_by("student_id")
     course_codes = Course.objects.filter(semester=semester, faculty_name=faculty)
@@ -105,11 +137,13 @@ def get_student_mark(faculty, semester):
     results = []
     
     for student in students:
-        # Calculate GPA for the current semester
+        print(f"{student}")
         gpa, current_credits, student_marks = calculate_gpa(student, semester)
-        
-        # Calculate CGPA, considering previous semesters (or set CGPA = GPA for the first semester)
         cgpa, cumulative_credits = calculate_cgpa(student, semester, gpa, current_credits)
+        
+        # Get the student's remark based on the university rule
+        student_remark = remark(gpa, cgpa, student_marks, semester.semester_number)
+
 
         # Save the result in Semester_Result model
         Semester_Result.objects.update_or_create(
@@ -120,7 +154,7 @@ def get_student_mark(faculty, semester):
                 'cgpa': cgpa,  # For first semester, CGPA = GPA
                 'curr_sem_credit_earned': current_credits,
                 'cumulative_credit_earned': cumulative_credits,
-                'remark': 'Passed' if gpa >= 2.00 else 'Failed'
+                'remark': student_remark
             }
         )
         
@@ -129,7 +163,8 @@ def get_student_mark(faculty, semester):
             'student_id': student.student_id,
             'marks': student_marks,
             'gpa': gpa,
-            'cgpa': cgpa
+            'cgpa': cgpa,
+            'remark': student_remark,
         })
 
     context = {

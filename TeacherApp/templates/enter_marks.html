@@ -20,10 +20,11 @@ Enter Marks | {{ course.course_title }}
         {% endif %}
         <form method="POST">
             {% csrf_token %}
-            <table class="table">
+            <table class="table" id="example">
                 <thead>
                     <tr>
                         <th>Student ID</th>
+                        {% comment %} <th>Name</th> {% endcomment %}
                         <th>Attendance</th>
                         <th>Assignment</th>
                         <th>Mid Exam</th>
@@ -37,6 +38,7 @@ Enter Marks | {{ course.course_title }}
                     {% for student in students %}
                     <tr>
                         <td>{{ student.student_id }}</td>
+                        {% comment %} <td>{{ student.user.first_name }} {{ student.user.last_name }}</td> {% endcomment %}
 
                         {% comment %} Remove placeholder and set default:'0' to see 0 in the input field if mark is not given. Example is given below {% endcomment %}
                         {% comment %} <td>
@@ -73,6 +75,7 @@ Enter Marks | {{ course.course_title }}
                 </tbody>
             </table>
             <button type="submit" class="btn btn-primary">Submit Marks</button>
+            <a href="{% url 'TeacherApp:generate_pdf' course.course_code %}" class="btn btn-secondary">Generate PDF</a>
         </form>
     </div>
 </div>

@@ -10,7 +10,7 @@ class Student(models.Model):
     session = models.CharField(max_length=20, null=True)
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, null=True)
     curr_semester = models.ForeignKey(Semester, on_delete=models.CASCADE, null=True)
-    cgpa = models.DecimalField(max_digits = 4, decimal_places = 3, default=0.0)
+    # cgpa = models.DecimalField(max_digits = 4, decimal_places = 3, default=0.0)
     profile_pic = models.ImageField(upload_to='students_profile_pics/')
     
     class Meta:

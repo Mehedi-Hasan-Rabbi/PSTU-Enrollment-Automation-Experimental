@@ -16,6 +16,7 @@ Semester {{ semester.semester_number }} Result Calculation
                 {% endfor %}
                 <th>GPA</th>
                 <th>CGPA</th>
+                <th>Remark</th>
             </tr>
         </thead>
         <tbody>
@@ -27,6 +28,13 @@ Semester {{ semester.semester_number }} Result Calculation
                     {% endfor %}
                     <td>{{ result.gpa }}</td>
                     <td>{{ result.cgpa }}</td>
+                    {% if result.remark == "Passed" %}
+                        <td style="background-color: green; color: white">{{ result.remark }}</td>
+                    {% elif result.remark == "Conditional Passed" %}
+                        <td style="background-color: rgb(208, 153, 52); color: white">{{ result.remark }}</td>
+                    {% elif result.remark == "Failed" %}
+                        <td style="background-color: red; color: white">{{ result.remark }}</td>
+                    {% endif %}
                 </tr>
             {% endfor %}
         </tbody>
