@@ -39,5 +39,9 @@ Semester {{ semester.semester_number }} Result Calculation
             {% endfor %}
         </tbody>
     </table>
+
+    <a href="{% url 'FacultyApp:generate_student_report_pdf' semester.semester_number %}" class="btn btn-primary mb-3">
+        Generate PDF
+    </a>
 </div>
 {% endblock %}

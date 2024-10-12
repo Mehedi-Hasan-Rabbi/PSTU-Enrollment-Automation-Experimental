@@ -24,5 +24,6 @@ urlpatterns = [
     path('faculty_admin/assignCourse/', views.assignCourse, name="assignCourse"),
     
     path('faculty_admin/calculate_result/', views.calculate_result, name='calculate_result'),
-    path('faculty_admin/generate_result/<int:semester_number>/', views.generate_results, name='generate_results'),  # Add this line
+    path('faculty_admin/generate_result/<int:semester_number>/', views.generate_results, name='generate_results'),
+    path('faculty_admin/generate_student_report_pdf/<int:semester_number>/', views.generate_student_report_pdf, name='generate_student_report_pdf'), 
 ]

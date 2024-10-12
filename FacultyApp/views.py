@@ -8,10 +8,15 @@ from django.views.decorators.cache import cache_control
 from django.core.exceptions import ValidationError
 from django.views.decorators.cache import never_cache
 from django.contrib import messages
+from django.http import HttpResponse
+
 from .models import FacultyController, Semester, Course, Faculty, Department
 from TeacherApp.models import Teacher, Course_Instructor
 from StudentApp.models import Student
 from ResultApp.views import get_student_mark
+from FacultyApp.documentGenerator import PDF
+
+
 
 # Create your views here.
 def index(request):    
@@ -546,3 +551,18 @@ def generate_results(request, semester_number):
     context = get_student_mark(faculty, semester)
 
     return render(request, 'results_table.html', context)
+
+
+@login_required(login_url='FacultyApp:faculty_admin_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def generate_student_report_pdf(request, semester_number):
+    print(f"\nGenerate Report PDF:{semester_number}\n")
+    
+    faculty_controller = FacultyController.objects.get(user=request.user)
+    faculty = faculty_controller.faculty
+    try:
+        response = PDF(faculty, semester_number)
+        return response
+
+    except Exception as e:
+        return HttpResponse(f"An error occurred: {str(e)}", status=500)
