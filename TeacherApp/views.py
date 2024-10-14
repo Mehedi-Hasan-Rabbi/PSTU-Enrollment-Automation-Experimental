@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.http import HttpResponse
 
 from TeacherApp.models import Teacher, Course_Instructor
-from ResultApp.models import Course_Mark
+from ResultApp.models import Course_Mark, Exam_Period, Semester_Result
 from StudentApp.models import Student
 from FacultyApp.models import Course
 
@@ -66,8 +66,15 @@ def teacher_logout(request):
 @login_required(login_url='TeacherApp:teacher_login')
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def teacher_dashboard(request):
+    teacher = Teacher.objects.get(user=request.user)
+    faculty = teacher.faculty
+    
+    
+    exam_period = Exam_Period.objects.filter(faculty=faculty).first()
+    print(f"Teacher Dashboard: {faculty}, Exam Period: {exam_period.period}")
+    
     # Create response object with the rendered template
-    response = render(request, 'teacher_dashboard.html', {'user': request.user})
+    response = render(request, 'teacher_dashboard.html', {'user': request.user, 'exam_period': exam_period.period})
     
     # Add cache control headers to prevent caching
     response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
@@ -82,10 +89,13 @@ def teacher_dashboard(request):
 def myCourses(request):
     teacher = request.user.teacher  # Assuming the user has a one-to-one relation with Teacher
     assigned_courses = Course_Instructor.objects.filter(teacher_id=teacher).select_related('courseinfo')
+    
+    faculty = teacher.faculty
 
     context = {
         'assigned_courses': assigned_courses,
         'teacher_name': teacher.user.get_full_name(),
+        'exam_period':  Exam_Period.objects.filter(faculty=faculty).first().period
     }
 
     # Add cache control headers to prevent caching
@@ -127,6 +137,8 @@ def enter_marks(request, course_code):
     try:
         teacher = Teacher.objects.get(user=request.user)
         course = Course.objects.get(course_code=course_code)
+        faculty = teacher.faculty
+        exam_period = Exam_Period.objects.filter(faculty=faculty).first().period
 
         # Ensure the teacher is assigned to this course
         if not Course_Instructor.objects.filter(teacher_id=teacher, courseinfo=course).exists():
@@ -134,7 +146,16 @@ def enter_marks(request, course_code):
             return redirect('TeacherApp:myCourses')
 
         # Get all students enrolled in this course and same faculty
-        students = Student.objects.filter(faculty=teacher.faculty, curr_semester=course.semester).order_by('student_id')
+        if exam_period == 'Regular':
+            students = Student.objects.filter(faculty=teacher.faculty, curr_semester=course.semester).order_by('student_id')
+        elif exam_period == 'F-Removal':
+            conditonal_pass_student = Semester_Result.objects.filter(semester=course.semester, remark='Conditional Passed')
+            # students = [con.student_id for con in conditonal_pass_student]
+            students = []
+            for con in conditonal_pass_student:
+                print(f"Conditonal Passed Students: {con.student_id}")
+                if Course_Mark.objects.filter(student_id=con.student_id, course_id=course_code).first().total < 40.00:
+                    students.append(con.student_id)
 
         # Fetch existing marks for the course and students
         existing_marks = {
@@ -146,20 +167,25 @@ def enter_marks(request, course_code):
                 'total': mark.total,
                 'letter_grade': mark.letter_grade,
                 'grade_point': mark.grade_point,
-
             }
             for mark in Course_Mark.objects.filter(course_id=course, student_id__in=students)
         }
 
-        # Ensure existing_marks is not None and default to an empty dict
         existing_marks = existing_marks if existing_marks else {}
 
         if request.method == 'POST':
             # Process the marks entry form
             for student in students:
-                attendance = float(request.POST.get(f'attendance_{student.id}', 0))
-                assignment = float(request.POST.get(f'assignment_{student.id}', 0))
-                mid_exam = float(request.POST.get(f'mid_exam_{student.id}', 0))
+                # Allow all fields during Regular, restrict to only final_exam during F-Removal
+                if exam_period == 'Regular':
+                    attendance = float(request.POST.get(f'attendance_{student.id}', 0))
+                    assignment = float(request.POST.get(f'assignment_{student.id}', 0))
+                    mid_exam = float(request.POST.get(f'mid_exam_{student.id}', 0))
+                else:
+                    attendance = float(existing_marks.get(student.id, {}).get('attendance', 0))
+                    assignment = float(existing_marks.get(student.id, {}).get('assignment', 0))
+                    mid_exam = float(existing_marks.get(student.id, {}).get('mid_exam', 0))
+
                 final_exam = float(request.POST.get(f'final_exam_{student.id}', 0))
 
                 # Server-side validation
@@ -170,9 +196,8 @@ def enter_marks(request, course_code):
                     return redirect('TeacherApp:enter_marks', course_code=course_code)
 
                 total = attendance + assignment + mid_exam + final_exam
-                
                 grade_point, letter_grade = calculate_grade_point(total)
-                
+
                 # Create or update the student's marks
                 Course_Mark.objects.update_or_create(
                     student_id=student,
@@ -183,8 +208,8 @@ def enter_marks(request, course_code):
                         'mid_exam': mid_exam,
                         'final_exam': final_exam,
                         'total': total,
-                        'letter_grade' : letter_grade,
-                        'grade_point' : grade_point
+                        'letter_grade': letter_grade,
+                        'grade_point': grade_point
                     }
                 )
 
@@ -194,14 +219,10 @@ def enter_marks(request, course_code):
         context = {
             'course': course,
             'students': students,
-            'existing_marks': existing_marks,  # Always pass a dictionary to avoid None errors
+            'existing_marks': existing_marks,
+            'exam_period': exam_period,
         }
-        response = render(request, 'enter_marks.html', context)
-        response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
-        response['Pragma'] = 'no-cache'
-        response['Expires'] = '0'
-
-        return response
+        return render(request, 'enter_marks.html', context)
 
     except Teacher.DoesNotExist:
         messages.error(request, "You are not authorized to enter marks.")
@@ -214,6 +235,7 @@ def enter_marks(request, course_code):
     except Exception as e:
         messages.error(request, f"An error occurred: {str(e)}")
         return redirect('TeacherApp:myCourses')
+
 
 
 @login_required(login_url='TeacherApp:teacher_login')

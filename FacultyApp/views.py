@@ -14,6 +14,7 @@ from .models import FacultyController, Semester, Course, Faculty, Department
 from TeacherApp.models import Teacher, Course_Instructor
 from StudentApp.models import Student
 from ResultApp.views import get_student_mark
+from ResultApp.models import Exam_Period
 from FacultyApp.documentGenerator import PDF
 
 
@@ -73,8 +74,14 @@ def faculty_admin_logout(request):
 @login_required(login_url='FacultyApp:faculty_admin_login')  # Redirect to login if not authenticated
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def dashboard(request):
+    faculty_controller = FacultyController.objects.get(user=request.user)
+    faculty = faculty_controller.faculty
+    
+    exam_period = Exam_Period.objects.filter(faculty=faculty).first()
+    # print(f"Exam Period: {exam_period.period}")
+    
     # Create response object with the rendered template
-    response = render(request, 'dashboard.html', {'user': request.user})
+    response = render(request, 'dashboard.html', {'user': request.user, 'exam_period': exam_period.period})
     
     # Add cache control headers to prevent caching
     response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
@@ -91,6 +98,8 @@ def addCourse(request):
     faculty = faculty_controller.faculty
     semesters = Semester.objects.all()
 
+    exam_period = Exam_Period.objects.filter(faculty=faculty).first()
+    
     if request.method == 'POST':
         course_code = request.POST.get('course_code')
         course_title = request.POST.get('course_title')
@@ -124,6 +133,7 @@ def addCourse(request):
     return render(request, 'addCourse.html', {
         'faculty_name': faculty.faculty_name,
         'semester_number': semesters,
+        'exam_period': exam_period.period,
     })
     
 
@@ -133,6 +143,8 @@ def deleteCourse(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
     all_course = Course.objects.filter(faculty_name=faculty)
+    
+    exam_period = Exam_Period.objects.filter(faculty=faculty).first()
     
     print(f"{faculty}")
     
@@ -152,6 +164,7 @@ def deleteCourse(request):
     return render(request, 'deleteCourse.html', {
         'faculty_name': faculty.faculty_name,
         'all_course': all_course,
+        'exam_period': exam_period.period,
     })
     
 
@@ -160,6 +173,8 @@ def deleteCourse(request):
 def addTeacher(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
+    
+    exam_period = Exam_Period.objects.filter(faculty=faculty).first()
     
     departments = Department.objects.filter(faculty_name=faculty)
     
@@ -230,6 +245,7 @@ def addTeacher(request):
     return render(request, 'addTeacher.html', {
         'departments': departments,
         'faculty_name': faculty.faculty_name,
+        'exam_period': exam_period.period,
     })
 
 
@@ -238,6 +254,8 @@ def addTeacher(request):
 def deleteTeacher(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
+    
+    exam_period = Exam_Period.objects.filter(faculty=faculty).first()
     
     # Get the list of teachers for the faculty
     all_teachers = Teacher.objects.filter(faculty=faculty).select_related('department')  # Use select_related for efficiency
@@ -271,6 +289,7 @@ def deleteTeacher(request):
     return render(request, 'deleteTeacher.html', {
         'faculty_name': faculty.faculty_name,
         'all_teachers': all_teachers,
+        'exam_period': exam_period.period,
     })
     
     
@@ -279,6 +298,7 @@ def deleteTeacher(request):
 def addDepartment(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
+    exam_period = Exam_Period.objects.filter(faculty=faculty).first()
 
     if request.method == 'POST':
         dept_name = request.POST.get('dept_name')
@@ -306,6 +326,7 @@ def addDepartment(request):
 
     return render(request, 'addDepartment.html', {
         'faculty_name': faculty.faculty_name,
+        'exam_period': exam_period.period,
     })
     
     
@@ -355,6 +376,7 @@ def deleteDepartment(request):
     return render(request, 'deleteDepartment.html', {
         'faculty_name': faculty.faculty_name,
         'all_departments': all_departments,
+        'exam_period':  Exam_Period.objects.filter(faculty=faculty).first().period
     })
 
 
@@ -428,7 +450,8 @@ def addStudent(request):
     semesters = Semester.objects.all()
     return render(request, 'addStudent.html', {
         'semesters': semesters, 
-        'faculty_name': faculty.faculty_name
+        'faculty_name': faculty.faculty_name,
+        'exam_period':  Exam_Period.objects.filter(faculty=faculty).first().period
     })
 
 
@@ -470,6 +493,7 @@ def deleteStudent(request):
     return render(request, 'deleteStudent.html', {
         'faculty_name': faculty.faculty_name,
         'all_students': all_students,
+        'exam_period':  Exam_Period.objects.filter(faculty=faculty).first().period,
     })
     
     
@@ -512,8 +536,40 @@ def assignCourse(request):
         'faculty_name': faculty.faculty_name,
         'all_teachers': all_teachers,
         'all_courses': all_courses,
+        'exam_period':  Exam_Period.objects.filter(faculty=faculty).first().period,
     })
 
+
+
+@login_required(login_url='FacultyApp:faculty_admin_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def updateExamPeriod(request):
+    faculty_controller = FacultyController.objects.get(user=request.user)
+    faculty = faculty_controller.faculty
+    
+    # Fetch current exam period or create a default one
+    exam_period = Exam_Period.objects.filter(faculty=faculty).first()
+    
+    if request.method == 'POST':
+        selected_period = request.POST.get('exam_period')
+        
+        if exam_period:
+            # Update existing exam period
+            exam_period.period = selected_period
+            exam_period.save()
+            messages.success(request, 'Exam period updated successfully!')
+        else:
+            # Create a new exam period
+            Exam_Period.objects.create(faculty=faculty, period=selected_period)
+            messages.success(request, 'Exam period created successfully!')
+        
+        return redirect('FacultyApp:updateExamPeriod')
+
+    # Render the template with the current exam period
+    return render(request, 'updateExamPeriod.html', {
+        'faculty': faculty,
+        'exam_period': exam_period.period if exam_period else 'Regular',
+    })
 
 
 # ------------------ New Views for Semester Results ------------------
@@ -533,7 +589,8 @@ def calculate_result(request):
         semester.student_count = Student.objects.filter(curr_semester=semester, faculty=faculty).count()
 
     context = {
-        'semesters': semesters
+        'semesters': semesters,
+        'exam_period':  Exam_Period.objects.filter(faculty=faculty).first().period
     }
 
     return render(request, 'calculate_result.html', context)
@@ -549,6 +606,7 @@ def generate_results(request, semester_number):
     semester = Semester.objects.get(semester_number=semester_number)
     # print(f"FacultyApp(view.py) generate_result:{Faculty}")
     context = get_student_mark(faculty, semester)
+    context['exam_period'] =  Exam_Period.objects.filter(faculty=faculty).first().period  # Add exam period to context
 
     return render(request, 'results_table.html', context)
 

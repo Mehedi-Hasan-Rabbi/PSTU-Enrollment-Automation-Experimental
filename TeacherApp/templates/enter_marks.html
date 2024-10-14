@@ -46,27 +46,37 @@ Enter Marks | {{ course.course_title }}
                                    value="{{ existing_marks|dict_key:student.id|dict_key:'attendance'|default:'0' }}">
                         </td>  {% endcomment %}
                         <td>
-                            <input placeholder="Mark not given" type="number" step="0.01" name="attendance_{{ student.id }}" required min="7" max="10" min="0"
+                            <!-- Attendance input: disabled during F-Removal -->
+                            <input {% if exam_period == 'F-Removal' %} disabled {% endif %} placeholder="Mark not given" type="number" step="0.01" name="attendance_{{ student.id }}" required min="7" max="10"
                                    value="{{ existing_marks|dict_key:student.id|dict_key:'attendance'|default:'' }}">
                         </td>
+                        
                         <td>
-                            <input placeholder="Mark not given" type="number" step="0.01" name="assignment_{{ student.id }}" required max="5" min="0"
+                            <!-- Assignment input: disabled during F-Removal -->
+                            <input {% if exam_period == 'F-Removal' %} disabled {% endif %} placeholder="Mark not given" type="number" step="0.01" name="assignment_{{ student.id }}" required max="5" min="0"
                                    value="{{ existing_marks|dict_key:student.id|dict_key:'assignment'|default:'' }}">
                         </td>
+                        
                         <td>
-                            <input placeholder="Mark not given" type="number" step="0.01" name="mid_exam_{{ student.id }}" required max="15" min="0"
+                            <!-- Mid Exam input: disabled during F-Removal -->
+                            <input {% if exam_period == 'F-Removal' %} disabled {% endif %} placeholder="Mark not given" type="number" step="0.01" name="mid_exam_{{ student.id }}" required max="15" min="0"
                                    value="{{ existing_marks|dict_key:student.id|dict_key:'mid_exam'|default:'' }}">
                         </td>
+                        
                         <td>
+                            <!-- Final Exam input: always enabled -->
                             <input placeholder="Mark not given" type="number" step="0.01" name="final_exam_{{ student.id }}" required max="70" min="0"
                                    value="{{ existing_marks|dict_key:student.id|dict_key:'final_exam'|default:'' }}">
                         </td>
+                        
                         <td>
                             {{ existing_marks|dict_key:student.id|dict_key:'total'|default:'0' }}
                         </td>
+                        
                         <td>
                             {{ existing_marks|dict_key:student.id|dict_key:'letter_grade'|default:'F' }}
                         </td>
+                        
                         <td>
                             {{ existing_marks|dict_key:student.id|dict_key:'grade_point'|default:'0' }}
                         </td>

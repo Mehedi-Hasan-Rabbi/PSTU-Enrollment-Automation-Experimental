@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Course_Mark, Semester_Result
+from .models import Course_Mark, Semester_Result, Exam_Period
 
 @admin.register(Course_Mark)
 class CourseMarkAdmin(admin.ModelAdmin):
@@ -12,3 +12,9 @@ class SemesterResultAdmin(admin.ModelAdmin):
     list_display = ('student_id', 'semester', 'gpa', 'cgpa')
     search_fields = ('student_id__user__username', 'semester__semester_number')
     list_filter = ('semester', 'student_id')
+    
+@admin.register(Exam_Period)
+class ExamPeriodAdmin(admin.ModelAdmin):
+    list_display = ('faculty', 'period')
+    search_fields = ('faculty__faculty_name', 'period')
+    list_filter = ('faculty', 'period')

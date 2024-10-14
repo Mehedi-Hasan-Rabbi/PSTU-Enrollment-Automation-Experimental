@@ -129,7 +129,6 @@ def remark(gpa, cgpa, student_marks, semester_number):
 
 
 
-
 def get_student_mark(faculty, semester):
     students = Student.objects.filter(faculty=faculty, curr_semester=semester).order_by("student_id")
     course_codes = Course.objects.filter(semester=semester, faculty_name=faculty)

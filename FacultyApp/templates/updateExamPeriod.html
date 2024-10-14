@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}
+Update Exam Period | Faculty Admin Dashboard
+{% endblock title %}
+
+{% block content %}
+<div class="content">
+    <div class="container">
+        <div class="page-title">
+            <h3>Update Exam Period</h3>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">Faculty of {{ faculty.faculty_name }}</div>
+                    <div class="card-body">
+                        <form method="POST" accept-charset="utf-8">
+                            {% csrf_token %}
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="exam_period">Exam Period</label>
+                                <div class="col-sm-10">
+                                    <select name="exam_period" class="form-select">
+                                        <option value="Regular" {% if exam_period == 'Regular' %}selected{% endif %}>Regular</option>
+                                        <option value="F-Removal" {% if exam_period == 'F-Removal' %}selected{% endif %}>F-Removal</option>
+                                        <option value="Final" {% if exam_period == 'Final' %}selected{% endif %}>Final</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <div class="col-sm-10 offset-sm-2">
+                                    <input type="submit" class="btn btn-primary" value="Update Exam Period">
+                                </div>
+                            </div>
+                        </form>
+                        {% if messages %}
+                            {% for msg in messages %}
+                                {% if msg.tags == 'success' %}
+                                    <div class="alert alert-success">{{ msg }}</div>
+                                {% else %}
+                                    <div class="alert alert-danger">{{ msg }}</div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

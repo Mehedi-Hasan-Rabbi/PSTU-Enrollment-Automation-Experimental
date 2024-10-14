@@ -16,6 +16,13 @@
     <link href="{% static "vendor/flagiconcss/css/flag-icon.min.css" %}" rel="stylesheet">
 </head>
 
+<style>
+    .disabled-link {
+        pointer-events: none;
+        color: gray;
+    }    
+</style>
+
 <body>
     <div class="wrapper">
         <nav id="sidebar" class="active">
@@ -80,8 +87,50 @@
                 </li>
 
                 <li>
-                    <a href="{% url 'FacultyApp:calculate_result' %}"><i class="fas fa-calculator"></i> Calculate Result</a>
+                    <a href="{% url 'FacultyApp:updateExamPeriod' %}"><i class="fas fa-hourglass-half"></i> Examination Period</a>
                 </li>
+
+                <li>
+                    <a href="#calculateresult" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle no-caret-down">
+                        <i class="fas fa-calculator"></i> Calculate Result
+                    </a>
+                    <ul class="collapse list-unstyled" id="calculateresult">
+                        <li>
+                            {% if exam_period == 'Regular' %}
+                                <a href="{% url 'FacultyApp:calculate_result' %}">
+                                    <i class="fas fa-angle-right"></i> Regular Period
+                                </a>
+                            {% else %}
+                                <a href="#" class="disabled-link">
+                                    <i class="fas fa-angle-right"></i> Regular Period
+                                </a>
+                            {% endif %}
+                        </li>
+                        <li>
+                            {% if exam_period == 'F-Removal' %}
+                                <a href="">
+                                    <i class="fas fa-angle-right"></i> F-Removal Period
+                                </a>
+                            {% else %}
+                                <a href="#" class="disabled-link">
+                                    <i class="fas fa-angle-right"></i> F-Removal Period
+                                </a>
+                            {% endif %}
+                        </li>
+                        <li>
+                            {% if exam_period == 'Final' %}
+                                <a href="">
+                                    <i class="fas fa-angle-right"></i> Final
+                                </a>
+                            {% else %}
+                                <a href="#" class="disabled-link">
+                                    <i class="fas fa-angle-right"></i> Final
+                                </a>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </li>
+            </ul>
         </nav>
         <div id="body" class="active">
             <!-- navbar navigation component -->

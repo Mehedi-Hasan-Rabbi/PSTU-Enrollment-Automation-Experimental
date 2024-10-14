@@ -1,6 +1,6 @@
 from django.db import models
 from StudentApp.models import Student
-from FacultyApp.models import Course, Semester
+from FacultyApp.models import Course, Semester, Faculty
 
 # Create your models here.
 class Course_Mark(models.Model):
@@ -42,3 +42,14 @@ class Semester_Result(models.Model):
     curr_sem_credit_earned = models.DecimalField(max_digits = 5, decimal_places = 2, default=0.0)
     cumulative_credit_earned = models.DecimalField(max_digits = 5, decimal_places = 2, default=0.0)
     remark = models.CharField(max_length=50, choices=REMARK_CHOICES, default="Failed")
+    
+    
+class Exam_Period(models.Model):
+    PERIOD_CHOICES = [
+        ("Regular", 'Regular'),
+        ("F-Removal", 'F-Removal'),
+        ("Final", 'Final'),
+    ]
+    
+    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, null=True)
+    period = models.CharField(max_length=20, choices=PERIOD_CHOICES, default='Regular')
