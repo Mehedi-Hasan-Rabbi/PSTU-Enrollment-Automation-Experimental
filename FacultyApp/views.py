@@ -8,14 +8,14 @@ from django.views.decorators.cache import cache_control
 from django.core.exceptions import ValidationError
 from django.views.decorators.cache import never_cache
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 
 from .models import FacultyController, Semester, Course, Faculty, Department
 from TeacherApp.models import Teacher, Course_Instructor
 from StudentApp.models import Student
 from ResultApp.views import get_student_mark
-from ResultApp.models import Exam_Period
-from FacultyApp.documentGenerator import PDF
+from ResultApp.models import Exam_Period, Semester_Result
+from FacultyApp.documentGenerator import all_student_PDF, conditional_passed_student_PDF
 
 
 
@@ -580,17 +580,32 @@ def calculate_result(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
     num_semesters = faculty.number_of_semseter
+    exam_period =  Exam_Period.objects.filter(faculty=faculty).first().period
     # print(f"FacultyApp(view.py) calculate_result:{Faculty}")
     # Get all semesters up to the number of semesters for this faculty
     semesters = Semester.objects.filter(semester_number__lte=num_semesters)
 
     # Add student count for each semester
+    # if exam_period == 'Regular':
+    #     for semester in semesters:
+    #         semester.student_count = Student.objects.filter(curr_semester=semester, faculty=faculty).count()
+    # elif exam_period == 'F-Removal':
+    #     for semester in semesters:
+    #         # Filter students with "Conditional Passed" remark in the Semester_Result model
+    #         conditional_students = Semester_Result.objects.filter(
+    #             semester=semester,
+    #             remark="Conditional Passed"
+    #         ).values_list('student_id', flat=True)
+
+    #         semester.student_count = Student.objects.filter(id__in=conditional_students, faculty=faculty).count()
+    
     for semester in semesters:
         semester.student_count = Student.objects.filter(curr_semester=semester, faculty=faculty).count()
+            
 
     context = {
         'semesters': semesters,
-        'exam_period':  Exam_Period.objects.filter(faculty=faculty).first().period
+        'exam_period':  exam_period
     }
 
     return render(request, 'calculate_result.html', context)
@@ -601,25 +616,87 @@ def calculate_result(request):
 def generate_results(request, semester_number):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
+    exam_period = Exam_Period.objects.filter(faculty=faculty).first().period
 
     # Get the semester object
     semester = Semester.objects.get(semester_number=semester_number)
     # print(f"FacultyApp(view.py) generate_result:{Faculty}")
-    context = get_student_mark(faculty, semester)
-    context['exam_period'] =  Exam_Period.objects.filter(faculty=faculty).first().period  # Add exam period to context
+    context = get_student_mark(faculty, semester, exam_period, request)
+    
+    # If get_student_mark returns a redirect (i.e., missing marks), exit early
+    if isinstance(context, HttpResponseRedirect):
+        return context
+    
+    context['exam_period'] =  exam_period  # Add exam period to context
 
     return render(request, 'results_table.html', context)
 
 
 @login_required(login_url='FacultyApp:faculty_admin_login')
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-def generate_student_report_pdf(request, semester_number):
+def promote_to_next_semester(request, semester_number):
+    faculty_controller = FacultyController.objects.get(user=request.user)
+    faculty = faculty_controller.faculty
+    exam_period = Exam_Period.objects.filter(faculty=faculty).first().period
+
+    # Get the current semester and the next semester
+    current_semester = Semester.objects.get(semester_number=semester_number)
+    next_semester = Semester.objects.filter(semester_number=semester_number + 1).first()
+
+    if not next_semester:
+        # Handle the case when the next semester does not exist
+        messages.error(request, f"Semester {semester_number + 1} does not exist.")
+        return redirect('FacultyApp:faculty_dashboard')
+
+    # Get all students in the current semester and faculty
+    students = Student.objects.filter(curr_semester=current_semester, faculty=faculty)
+
+    promoted_students = []
+    for student in students:
+        # Get the semester result for the student in the specified semester
+        semester_result = Semester_Result.objects.filter(student_id=student, semester=current_semester).first()
+
+        if semester_result:
+            # Check if the student has passed or conditionally passed
+            if semester_result.remark in ["Passed", "Conditional Passed"]:
+                # Update the student's current semester to the next semester
+                student.curr_semester = next_semester
+                student.save()
+
+                promoted_students.append(student)
+
+    if promoted_students:
+        messages.success(request, f"Successfully promoted {len(promoted_students)} students to semester {next_semester.semester_number}.")
+    else:
+        messages.info(request, "No students were promoted.")
+
+    return redirect('FacultyApp:generate_results', semester_number)
+
+
+@login_required(login_url='FacultyApp:faculty_admin_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def all_student_PDF_generate(request, semester_number):
     print(f"\nGenerate Report PDF:{semester_number}\n")
     
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
     try:
-        response = PDF(faculty, semester_number)
+        response = all_student_PDF(faculty, semester_number)
+        return response
+
+    except Exception as e:
+        return HttpResponse(f"An error occurred: {str(e)}", status=500)
+    
+    
+@login_required(login_url='FacultyApp:faculty_admin_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def conditional_passed_student_PDF_generate(request, semester_number):
+    print(f"\nGenerate Report PDF:{semester_number}\n")
+    
+    faculty_controller = FacultyController.objects.get(user=request.user)
+    faculty = faculty_controller.faculty
+    try:
+        response = conditional_passed_student_PDF(faculty, semester_number)
         return response
 
     except Exception as e:

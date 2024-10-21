@@ -1,5 +1,8 @@
-from django.shortcuts import render
+import math
 from decimal import Decimal
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.db.models import Sum, F
 
 from StudentApp.models import Student
@@ -30,7 +33,7 @@ def calculate_grade_point(marks):
         return 0.00  # F grade
     
     
-def calculate_gpa(student, semester):
+def calculate_gpa(student, semester, request):
     # Get all courses for the given semester
     courses = Course.objects.filter(semester=semester, faculty_name=student.faculty)
     
@@ -41,7 +44,11 @@ def calculate_gpa(student, semester):
     for course in courses:
         # Get course marks for this student and course
         course_mark = Course_Mark.objects.filter(student_id=student, course_id=course).first()
-        print(f"{course_mark.course_id} - {course_mark.total}")
+        # print(f"{course_mark.course_id} - {course_mark.total}")
+        
+        if not course_mark:
+            messages.error(request, f"All students of semester no. {semester} didn't get their mark for one or more courses!")
+            return None, None, None
         
         if course_mark and course_mark.total >= 40.00:
             numerical_marks = course_mark.total
@@ -68,6 +75,7 @@ def calculate_gpa(student, semester):
         gpa = total_grade_points / total_credit_hours
     else:
         gpa = Decimal(0.00)
+    print(f"{Student}: Complete\n")
 
     return round(gpa, 3), total_credit_hours, student_marks  # Return GPA and total credit hours earned in the semester
 
@@ -99,9 +107,7 @@ def calculate_cgpa(student, current_semester, current_gpa, current_credits):
 
 
 
-import math
-
-def remark(gpa, cgpa, student_marks, semester_number):
+def remark(gpa, cgpa, student_marks, semester_number, exam_period):
     # Check if any course has a grade point of 0.00 (F grade)
     total_courses = len(student_marks)
     f_grade_count = sum(1 for mark in student_marks.values() if mark['grade_point'] == 0.00)
@@ -109,8 +115,21 @@ def remark(gpa, cgpa, student_marks, semester_number):
     # Determine the maximum allowed F grades (50% of courses)
     max_f_grades_allowed = math.ceil(total_courses / 2) if total_courses % 2 != 0 else total_courses / 2
     print(f"{max_f_grades_allowed} - {f_grade_count}")
+    
     # For the first semester (no "Conditional Passed" logic)
-    if semester_number == 1:
+    if exam_period == 'F-Removal':
+        if gpa >= 2.00 and cgpa >= 2.25 and f_grade_count == 0:
+            return "Passed"
+        elif gpa >= 2.00 and cgpa >= 2.25 and f_grade_count <= 2:
+            return "Conditional Passed"
+        elif semester_number == 1 and gpa >= 2.00 and f_grade_count == 0:
+            return "Passed"
+        elif semester_number == 1 and gpa >= 2.00 and f_grade_count <= 2:
+            return "Conditional Passed"
+        else:
+            return "Failed"
+    
+    elif semester_number == 1:
         if gpa >= 2.00 and f_grade_count == 0:
             return "Passed"
         elif gpa >= 2.00 and float(f_grade_count) <= max_f_grades_allowed:
@@ -129,7 +148,7 @@ def remark(gpa, cgpa, student_marks, semester_number):
 
 
 
-def get_student_mark(faculty, semester):
+def get_student_mark(faculty, semester, exam_period, request):
     students = Student.objects.filter(faculty=faculty, curr_semester=semester).order_by("student_id")
     course_codes = Course.objects.filter(semester=semester, faculty_name=faculty)
 
@@ -137,12 +156,22 @@ def get_student_mark(faculty, semester):
     
     for student in students:
         print(f"{student}")
-        gpa, current_credits, student_marks = calculate_gpa(student, semester)
+        gpa, current_credits, student_marks = calculate_gpa(student, semester, request)
+        
+        if gpa is None and current_credits is None and student_marks is None:
+            return redirect('FacultyApp:calculate_result')
+        
         cgpa, cumulative_credits = calculate_cgpa(student, semester, gpa, current_credits)
         
         # Get the student's remark based on the university rule
-        student_remark = remark(gpa, cgpa, student_marks, semester.semester_number)
-
+        student_remark = remark(gpa, cgpa, student_marks, semester.semester_number, exam_period)
+        
+        # All Failed Course
+        failing_courses = Course_Mark.objects.filter(student_id=student, grade_point=0.00).select_related('course_id')
+        failed_courses = []
+        for course_mark in failing_courses:
+            failed_courses.append(course_mark.course_id.course_code)
+            # print(f'Failed Course: {course_mark.course_id.course_code}')
 
         # Save the result in Semester_Result model
         Semester_Result.objects.update_or_create(
@@ -153,7 +182,7 @@ def get_student_mark(faculty, semester):
                 'cgpa': cgpa,  # For first semester, CGPA = GPA
                 'curr_sem_credit_earned': current_credits,
                 'cumulative_credit_earned': cumulative_credits,
-                'remark': student_remark
+                'remark': student_remark,
             }
         )
         
@@ -164,6 +193,7 @@ def get_student_mark(faculty, semester):
             'gpa': gpa,
             'cgpa': cgpa,
             'remark': student_remark,
+            'failed_courses' : failed_courses
         })
 
     context = {

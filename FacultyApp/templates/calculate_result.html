@@ -5,7 +5,13 @@
 {% block content %}
 <div class="container mt-5">
     <h2 class="text-center">Calculate Result</h2>
-    
+    {% if messages %}
+        {% for msg in messages %}
+            <div class="alert alert-danger alert-{{ msg.tags }}" role="alert">
+                <h5 class="alert-title">{{ msg }}</h5>
+            </div>
+        {% endfor %}
+    {% endif %}
     <div class="row">
         {% for semester in semesters %}
             <div class="col-md-4 mb-4">

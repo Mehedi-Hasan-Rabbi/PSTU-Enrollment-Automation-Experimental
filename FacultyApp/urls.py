@@ -27,5 +27,8 @@ urlpatterns = [
     
     path('faculty_admin/calculate_result/', views.calculate_result, name='calculate_result'),
     path('faculty_admin/generate_result/<int:semester_number>/', views.generate_results, name='generate_results'),
-    path('faculty_admin/generate_student_report_pdf/<int:semester_number>/', views.generate_student_report_pdf, name='generate_student_report_pdf'), 
+    path('faculty_admin/all_student_PDF_generate/<int:semester_number>/', views.all_student_PDF_generate, name='all_student_PDF_generate'),
+    path('faculty_admin/conditional_passed_student_PDF_generate/<int:semester_number>/', views.conditional_passed_student_PDF_generate, name='conditional_passed_student_PDF_generate'),
+    
+    path('faculty_admin/promote_to_next_semester/<int:semester_number>/', views.promote_to_next_semester, name='promote_to_next_semester'),
 ]

@@ -108,7 +108,7 @@
                         </li>
                         <li>
                             {% if exam_period == 'F-Removal' %}
-                                <a href="">
+                                <a href="{% url 'FacultyApp:calculate_result' %}">
                                     <i class="fas fa-angle-right"></i> F-Removal Period
                                 </a>
                             {% else %}
