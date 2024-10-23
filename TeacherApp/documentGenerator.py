@@ -20,7 +20,7 @@ from reportlab.pdfgen import canvas
 
 def PDF (faculty, course_code):
     course = Course.objects.get(course_code=course_code)
-    students = Student.objects.filter(faculty=faculty, curr_semester=course.semester)
+    students = Student.objects.filter(faculty=faculty, curr_semester=course.semester, payment_status='Paid')
 
     # Set up the HttpResponse with appropriate PDF headers
     response = HttpResponse(content_type='application/pdf')

@@ -147,7 +147,7 @@ def enter_marks(request, course_code):
 
         # Get all students enrolled in this course and same faculty
         if exam_period == 'Regular':
-            students = Student.objects.filter(faculty=teacher.faculty, curr_semester=course.semester).order_by('student_id')
+            students = Student.objects.filter(faculty=teacher.faculty, curr_semester=course.semester, payment_status='Paid').order_by('student_id')
         elif exam_period == 'F-Removal':
             conditonal_pass_student = Semester_Result.objects.filter(semester=course.semester, remark='Conditional Passed')
             # students = [con.student_id for con in conditonal_pass_student]

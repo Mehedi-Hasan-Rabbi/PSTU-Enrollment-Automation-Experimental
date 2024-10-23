@@ -540,7 +540,6 @@ def assignCourse(request):
     })
 
 
-
 @login_required(login_url='FacultyApp:faculty_admin_login')
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def updateExamPeriod(request):
@@ -600,7 +599,7 @@ def calculate_result(request):
     #         semester.student_count = Student.objects.filter(id__in=conditional_students, faculty=faculty).count()
     
     for semester in semesters:
-        semester.student_count = Student.objects.filter(curr_semester=semester, faculty=faculty).count()
+        semester.student_count = Student.objects.filter(curr_semester=semester, faculty=faculty, payment_status='Paid').count()
             
 
     context = {
@@ -649,7 +648,7 @@ def promote_to_next_semester(request, semester_number):
         return redirect('FacultyApp:faculty_dashboard')
 
     # Get all students in the current semester and faculty
-    students = Student.objects.filter(curr_semester=current_semester, faculty=faculty)
+    students = Student.objects.filter(curr_semester=current_semester, faculty=faculty, payment_status='Paid')
 
     promoted_students = []
     for student in students:
@@ -661,6 +660,7 @@ def promote_to_next_semester(request, semester_number):
             if semester_result.remark in ["Passed", "Conditional Passed"]:
                 # Update the student's current semester to the next semester
                 student.curr_semester = next_semester
+                student.payment_status = 'Unpaid'
                 student.save()
 
                 promoted_students.append(student)

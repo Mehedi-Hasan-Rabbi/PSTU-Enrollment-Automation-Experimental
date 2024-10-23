@@ -149,7 +149,7 @@ def remark(gpa, cgpa, student_marks, semester_number, exam_period):
 
 
 def get_student_mark(faculty, semester, exam_period, request):
-    students = Student.objects.filter(faculty=faculty, curr_semester=semester).order_by("student_id")
+    students = Student.objects.filter(faculty=faculty, curr_semester=semester, payment_status="Paid").order_by("student_id")
     course_codes = Course.objects.filter(semester=semester, faculty_name=faculty)
 
     results = []

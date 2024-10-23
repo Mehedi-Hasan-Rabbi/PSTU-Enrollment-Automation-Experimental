@@ -14,7 +14,7 @@ from reportlab.lib.units import inch
 
 
 def all_student_PDF(faculty, semester_number):
-    students = Student.objects.filter(faculty=faculty, curr_semester=semester_number)
+    students = Student.objects.filter(faculty=faculty, curr_semester=semester_number, payment_status='Paid')
            
 
     # Set up the HttpResponse with appropriate PDF headers
@@ -100,7 +100,7 @@ def all_student_PDF(faculty, semester_number):
 
 
 def conditional_passed_student_PDF(faculty, semester_number):
-    students = Student.objects.filter(faculty=faculty, curr_semester=semester_number)
+    students = Student.objects.filter(faculty=faculty, curr_semester=semester_number, payment_status='Paid')
     conditional_students = []
     
     for student in students:
