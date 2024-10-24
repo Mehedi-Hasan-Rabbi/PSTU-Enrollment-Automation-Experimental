@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.http import HttpResponse
 
 from TeacherApp.models import Teacher, Course_Instructor
-from ResultApp.models import Course_Mark, Exam_Period, Semester_Result
+from ResultApp.models import Course_Mark, Exam_Period, Semester_Result, Special_Repeat
 from StudentApp.models import Student
 from FacultyApp.models import Course
 
@@ -71,10 +71,15 @@ def teacher_dashboard(request):
     
     
     exam_period = Exam_Period.objects.filter(faculty=faculty).first()
+    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
     print(f"Teacher Dashboard: {faculty}, Exam Period: {exam_period.period}")
     
     # Create response object with the rendered template
-    response = render(request, 'teacher_dashboard.html', {'user': request.user, 'exam_period': exam_period.period})
+    response = render(request, 'teacher_dashboard.html', {
+        'user': request.user, 
+        'exam_period': exam_period.period,
+        'special_repeat': special_repeat
+    })
     
     # Add cache control headers to prevent caching
     response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
@@ -90,6 +95,7 @@ def myCourses(request):
     teacher = request.user.teacher
     faculty = teacher.faculty
     exam_period = Exam_Period.objects.filter(faculty=faculty).first().period
+    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
     assigned_courses = Course_Instructor.objects.filter(teacher_id=teacher).select_related('courseinfo')
     
     if exam_period == 'F-Removal':
@@ -98,7 +104,8 @@ def myCourses(request):
     context = {
         'assigned_courses': assigned_courses,
         'teacher_name': teacher.user.get_full_name(),
-        'exam_period':  exam_period
+        'exam_period':  exam_period,
+        'special_repeat': special_repeat
     }
 
     # Add cache control headers to prevent caching
@@ -142,6 +149,7 @@ def enter_marks(request, course_code):
         course = Course.objects.get(course_code=course_code)
         faculty = teacher.faculty
         exam_period = Exam_Period.objects.filter(faculty=faculty).first().period
+        special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
 
         # Ensure the teacher is assigned to this course
         if not Course_Instructor.objects.filter(teacher_id=teacher, courseinfo=course).exists():
@@ -224,6 +232,7 @@ def enter_marks(request, course_code):
             'students': students,
             'existing_marks': existing_marks,
             'exam_period': exam_period,
+            'special_repeat': special_repeat
         }
         return render(request, 'enter_marks.html', context)
 

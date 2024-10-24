@@ -117,19 +117,34 @@
                                 </a>
                             {% endif %}
                         </li>
-                        <li>
-                            {% if exam_period == 'Final' %}
-                                <a href="">
-                                    <i class="fas fa-angle-right"></i> Final
-                                </a>
-                            {% else %}
-                                <a href="#" class="disabled-link">
-                                    <i class="fas fa-angle-right"></i> Final
-                                </a>
-                            {% endif %}
-                        </li>
                     </ul>
                 </li>
+
+                <li>
+                    {% if special_repeat == 'Enable' %}
+                    <a href="#specialrepeat" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle no-caret-down"><i class="fas fa-repeat"></i> Special Repeat</a>
+                    <ul class="collapse list-unstyled" id="specialrepeat">
+                        <li>
+                            <a href="{% url 'FacultyApp:specialCourseAssign' %}"><i class="fas fa-angle-right"></i> Course Assign</a>
+                        </li>
+                        <li>
+                            <a href=""><i class="fas fa-angle-right"></i> Calculate Result</a>
+                        </li>
+                    </ul>
+                    {% else %}
+                    <a href="#specialrepeat" class='disabled-link' data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle no-caret-down"><i class="fas fa-repeat"></i> Special Repeat</a>
+                    <ul class="collapse list-unstyled" id="specialrepeat">
+                        <li>
+                            <a href=""><i class="fas fa-angle-right"></i> Course Assign</a>
+                        </li>
+                        <li>
+                            <a href=""><i class="fas fa-angle-right"></i> Calculate Result</a>
+                        </li>
+                    </ul>
+                    {% endif %}
+                    
+                </li>
+
             </ul>
         </nav>
         <div id="body" class="active">

@@ -47,9 +47,18 @@ class Semester_Result(models.Model):
 class Exam_Period(models.Model):
     PERIOD_CHOICES = [
         ("Regular", 'Regular'),
-        ("F-Removal", 'F-Removal'),
-        ("Final", 'Final'),
+        ("F-Removal", 'F-Removal')
     ]
     
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, null=True)
     period = models.CharField(max_length=20, choices=PERIOD_CHOICES, default='Regular')
+    
+    
+class Special_Repeat(models.Model):
+    SPECIAL_REPEAT_CHOICES = [
+        ("Enable", 'Enable'),
+        ("Disable", 'Disable')
+    ]
+    
+    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, null=True)
+    special_period = models.CharField(max_length=20, choices=SPECIAL_REPEAT_CHOICES, default='Disable')

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Course_Mark, Semester_Result, Exam_Period
+from .models import Course_Mark, Semester_Result, Exam_Period, Special_Repeat
 
 @admin.register(Course_Mark)
 class CourseMarkAdmin(admin.ModelAdmin):
@@ -18,3 +18,10 @@ class ExamPeriodAdmin(admin.ModelAdmin):
     list_display = ('faculty', 'period')
     search_fields = ('faculty__faculty_name', 'period')
     list_filter = ('faculty', 'period')
+
+
+@admin.register(Special_Repeat)
+class SpecialRepeatAdmin(admin.ModelAdmin):
+    list_display = ('faculty', 'special_period')
+    search_fields = ('faculty__faculty_name', 'special_period')
+    list_filter = ('faculty', 'special_period')

@@ -11,10 +11,10 @@ from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
 
 from .models import FacultyController, Semester, Course, Faculty, Department
-from TeacherApp.models import Teacher, Course_Instructor
+from TeacherApp.models import Teacher, Course_Instructor, Special_Course_Instructor
 from StudentApp.models import Student
 from ResultApp.views import get_student_mark
-from ResultApp.models import Exam_Period, Semester_Result
+from ResultApp.models import Exam_Period, Semester_Result, Special_Repeat
 from FacultyApp.documentGenerator import all_student_PDF, conditional_passed_student_PDF
 
 
@@ -78,10 +78,15 @@ def dashboard(request):
     faculty = faculty_controller.faculty
     
     exam_period = Exam_Period.objects.filter(faculty=faculty).first()
+    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
     # print(f"Exam Period: {exam_period.period}")
     
     # Create response object with the rendered template
-    response = render(request, 'dashboard.html', {'user': request.user, 'exam_period': exam_period.period})
+    response = render(request, 'dashboard.html', {
+        'user': request.user, 
+        'exam_period': exam_period.period,
+        'special_repeat' : special_repeat
+    })
     
     # Add cache control headers to prevent caching
     response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
@@ -99,6 +104,7 @@ def addCourse(request):
     semesters = Semester.objects.all()
 
     exam_period = Exam_Period.objects.filter(faculty=faculty).first()
+    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
     
     if request.method == 'POST':
         course_code = request.POST.get('course_code')
@@ -134,6 +140,7 @@ def addCourse(request):
         'faculty_name': faculty.faculty_name,
         'semester_number': semesters,
         'exam_period': exam_period.period,
+        'special_repeat': special_repeat
     })
     
 
@@ -145,6 +152,7 @@ def deleteCourse(request):
     all_course = Course.objects.filter(faculty_name=faculty)
     
     exam_period = Exam_Period.objects.filter(faculty=faculty).first()
+    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
     
     print(f"{faculty}")
     
@@ -165,6 +173,7 @@ def deleteCourse(request):
         'faculty_name': faculty.faculty_name,
         'all_course': all_course,
         'exam_period': exam_period.period,
+        'special_repeat': special_repeat
     })
     
 
@@ -175,6 +184,7 @@ def addTeacher(request):
     faculty = faculty_controller.faculty
     
     exam_period = Exam_Period.objects.filter(faculty=faculty).first()
+    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
     
     departments = Department.objects.filter(faculty_name=faculty)
     
@@ -246,6 +256,7 @@ def addTeacher(request):
         'departments': departments,
         'faculty_name': faculty.faculty_name,
         'exam_period': exam_period.period,
+        'special_repeat': special_repeat
     })
 
 
@@ -256,6 +267,7 @@ def deleteTeacher(request):
     faculty = faculty_controller.faculty
     
     exam_period = Exam_Period.objects.filter(faculty=faculty).first()
+    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
     
     # Get the list of teachers for the faculty
     all_teachers = Teacher.objects.filter(faculty=faculty).select_related('department')  # Use select_related for efficiency
@@ -290,6 +302,7 @@ def deleteTeacher(request):
         'faculty_name': faculty.faculty_name,
         'all_teachers': all_teachers,
         'exam_period': exam_period.period,
+        'special_repeat': special_repeat
     })
     
     
@@ -298,7 +311,9 @@ def deleteTeacher(request):
 def addDepartment(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
+    
     exam_period = Exam_Period.objects.filter(faculty=faculty).first()
+    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
 
     if request.method == 'POST':
         dept_name = request.POST.get('dept_name')
@@ -327,6 +342,7 @@ def addDepartment(request):
     return render(request, 'addDepartment.html', {
         'faculty_name': faculty.faculty_name,
         'exam_period': exam_period.period,
+        'special_repeat': special_repeat
     })
     
     
@@ -335,6 +351,8 @@ def addDepartment(request):
 def deleteDepartment(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
+    
+    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
     
     # Get the list of departments for the faculty
     all_departments = Department.objects.filter(faculty_name=faculty)
@@ -376,7 +394,8 @@ def deleteDepartment(request):
     return render(request, 'deleteDepartment.html', {
         'faculty_name': faculty.faculty_name,
         'all_departments': all_departments,
-        'exam_period':  Exam_Period.objects.filter(faculty=faculty).first().period
+        'exam_period':  Exam_Period.objects.filter(faculty=faculty).first().period,
+        'special_repeat': special_repeat
     })
 
 
@@ -386,6 +405,8 @@ def deleteDepartment(request):
 def addStudent(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
+    
+    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
 
     if request.method == 'POST':
         # Get form data
@@ -451,7 +472,8 @@ def addStudent(request):
     return render(request, 'addStudent.html', {
         'semesters': semesters, 
         'faculty_name': faculty.faculty_name,
-        'exam_period':  Exam_Period.objects.filter(faculty=faculty).first().period
+        'exam_period':  Exam_Period.objects.filter(faculty=faculty).first().period,
+        'special_repeat': special_repeat
     })
 
 
@@ -460,6 +482,8 @@ def addStudent(request):
 def deleteStudent(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
+    
+    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
     
     # Get the list of students for the faculty
     all_students = Student.objects.filter(faculty=faculty).select_related('curr_semester')  # Use select_related for efficiency
@@ -494,6 +518,7 @@ def deleteStudent(request):
         'faculty_name': faculty.faculty_name,
         'all_students': all_students,
         'exam_period':  Exam_Period.objects.filter(faculty=faculty).first().period,
+        'special_repeat': special_repeat
     })
     
     
@@ -502,6 +527,8 @@ def deleteStudent(request):
 def assignCourse(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
+    
+    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
     
     # Fetch all teachers and courses related to the faculty
     all_teachers = Teacher.objects.filter(faculty=faculty).select_related('department')
@@ -537,6 +564,54 @@ def assignCourse(request):
         'all_teachers': all_teachers,
         'all_courses': all_courses,
         'exam_period':  Exam_Period.objects.filter(faculty=faculty).first().period,
+        'special_repeat': special_repeat
+    })
+
+
+
+@login_required(login_url='FacultyApp:faculty_admin_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def specialCourseAssign(request):
+    faculty_controller = FacultyController.objects.get(user=request.user)
+    faculty = faculty_controller.faculty
+    
+    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
+    
+    # Fetch all teachers and courses related to the faculty
+    all_teachers = Teacher.objects.filter(faculty=faculty).select_related('department')
+    all_courses = Course.objects.filter(faculty_name=faculty)
+    
+    if request.method == 'POST':
+        teacher_id = request.POST.get('teacher_id')
+        course_id = request.POST.get('course_id')
+
+        try:
+            teacher = Teacher.objects.get(id=teacher_id)
+            course = Course.objects.get(course_code=course_id)
+
+            # Check if the course is already assigned
+            if Special_Course_Instructor.objects.filter(teacher_id=teacher, courseinfo=course).exists():
+                messages.warning(request, f'This course is already assigned to {teacher.user.username}.')
+            else:
+                # Create a new Course_Instructor record
+                Special_Course_Instructor.objects.create(teacher_id=teacher, courseinfo=course)
+                messages.success(request, f'Course {course.course_code} assigned to {teacher.user.username} successfully!')
+
+        except Teacher.DoesNotExist:
+            messages.error(request, 'Selected teacher does not exist.')
+        except Course.DoesNotExist:
+            messages.error(request, 'Selected course does not exist.')
+        except Exception as e:
+            messages.error(request, str(e))
+
+        return redirect('FacultyApp:specialCourseAssign')
+
+    return render(request, 'specialCourseAssign.html', {
+        'faculty_name': faculty.faculty_name,
+        'all_teachers': all_teachers,
+        'all_courses': all_courses,
+        'exam_period':  Exam_Period.objects.filter(faculty=faculty).first().period,
+        'special_repeat': special_repeat
     })
 
 
@@ -548,6 +623,7 @@ def updateExamPeriod(request):
     
     # Fetch current exam period or create a default one
     exam_period = Exam_Period.objects.filter(faculty=faculty).first()
+    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
     
     if request.method == 'POST':
         selected_period = request.POST.get('exam_period')
@@ -568,6 +644,7 @@ def updateExamPeriod(request):
     return render(request, 'updateExamPeriod.html', {
         'faculty': faculty,
         'exam_period': exam_period.period if exam_period else 'Regular',
+        'special_repeat': special_repeat
     })
 
 
@@ -580,6 +657,7 @@ def calculate_result(request):
     faculty = faculty_controller.faculty
     num_semesters = faculty.number_of_semseter
     exam_period =  Exam_Period.objects.filter(faculty=faculty).first().period
+    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
     # print(f"FacultyApp(view.py) calculate_result:{Faculty}")
     # Get all semesters up to the number of semesters for this faculty
     # semesters = Semester.objects.filter(semester_number__lte=num_semesters)
@@ -610,7 +688,8 @@ def calculate_result(request):
 
     context = {
         'semesters': semesters,
-        'exam_period':  exam_period
+        'exam_period':  exam_period,
+        'special_repeat': special_repeat
     }
 
     return render(request, 'calculate_result.html', context)
@@ -622,6 +701,7 @@ def generate_results(request, semester_number):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
     exam_period = Exam_Period.objects.filter(faculty=faculty).first().period
+    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
 
     # Get the semester object
     semester = Semester.objects.get(semester_number=semester_number)
@@ -633,6 +713,7 @@ def generate_results(request, semester_number):
         return context
     
     context['exam_period'] =  exam_period  # Add exam period to context
+    context['special_repeat'] = special_repeat
 
     return render(request, 'results_table.html', context)
 
@@ -643,6 +724,7 @@ def promote_to_next_semester(request, semester_number):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
     exam_period = Exam_Period.objects.filter(faculty=faculty).first().period
+    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
 
     # Get the current semester and the next semester
     current_semester = Semester.objects.get(semester_number=semester_number)

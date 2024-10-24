@@ -22,6 +22,7 @@ urlpatterns = [
     path('faculty_admin/deleteStudent/', views.deleteStudent, name="deleteStudent"),
     
     path('faculty_admin/assignCourse/', views.assignCourse, name="assignCourse"),
+    path('faculty_admin/specialCourseAssign/', views.specialCourseAssign, name="specialCourseAssign"),
     
     path('faculty_admin/updateExamPeriod/', views.updateExamPeriod, name="updateExamPeriod"),
     

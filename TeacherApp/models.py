@@ -18,5 +18,9 @@ class Teacher(models.Model):
 class Course_Instructor(models.Model):
     teacher_id = models.ForeignKey(Teacher, on_delete=models.CASCADE, null=True)
     courseinfo = models.ForeignKey(Course, on_delete=models.CASCADE, null=True)
-    
+
+
+class Special_Course_Instructor(models.Model):
+    teacher_id = models.ForeignKey(Teacher, on_delete=models.CASCADE, null=True)
+    courseinfo = models.ForeignKey(Course, on_delete=models.CASCADE, null=True)
     
