@@ -61,7 +61,7 @@ class Department(models.Model):
 
 class Course(models.Model):
     course_code = models.CharField(max_length=20, primary_key=True)
-    course_title = models.CharField(max_length=255, unique=True)
+    course_title = models.CharField(max_length=255)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE, null=True)
     faculty_name = models.ForeignKey(Faculty, on_delete=models.CASCADE, null=True)
     credit_hour = models.DecimalField(max_digits = 3, decimal_places = 2, default=0.0)

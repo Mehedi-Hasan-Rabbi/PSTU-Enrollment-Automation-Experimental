@@ -87,15 +87,18 @@ def teacher_dashboard(request):
 @login_required(login_url='TeacherApp:teacher_login')
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def myCourses(request):
-    teacher = request.user.teacher  # Assuming the user has a one-to-one relation with Teacher
+    teacher = request.user.teacher
+    faculty = teacher.faculty
+    exam_period = Exam_Period.objects.filter(faculty=faculty).first().period
     assigned_courses = Course_Instructor.objects.filter(teacher_id=teacher).select_related('courseinfo')
     
-    faculty = teacher.faculty
+    if exam_period == 'F-Removal':
+        assigned_courses = assigned_courses.exclude(courseinfo__semester__semester_number=8)
 
     context = {
         'assigned_courses': assigned_courses,
         'teacher_name': teacher.user.get_full_name(),
-        'exam_period':  Exam_Period.objects.filter(faculty=faculty).first().period
+        'exam_period':  exam_period
     }
 
     # Add cache control headers to prevent caching

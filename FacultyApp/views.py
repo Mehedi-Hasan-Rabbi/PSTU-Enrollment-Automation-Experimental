@@ -582,7 +582,7 @@ def calculate_result(request):
     exam_period =  Exam_Period.objects.filter(faculty=faculty).first().period
     # print(f"FacultyApp(view.py) calculate_result:{Faculty}")
     # Get all semesters up to the number of semesters for this faculty
-    semesters = Semester.objects.filter(semester_number__lte=num_semesters)
+    # semesters = Semester.objects.filter(semester_number__lte=num_semesters)
 
     # Add student count for each semester
     # if exam_period == 'Regular':
@@ -597,6 +597,12 @@ def calculate_result(request):
     #         ).values_list('student_id', flat=True)
 
     #         semester.student_count = Student.objects.filter(id__in=conditional_students, faculty=faculty).count()
+    
+    semesters = []
+    if exam_period == 'F-Removal':
+        semesters = Semester.objects.filter(semester_number__lte=num_semesters).exclude(semester_number=8)
+    else:
+        semesters = Semester.objects.filter(semester_number__lte=num_semesters)
     
     for semester in semesters:
         semester.student_count = Student.objects.filter(curr_semester=semester, faculty=faculty, payment_status='Paid').count()
