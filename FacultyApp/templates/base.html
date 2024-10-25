@@ -128,7 +128,7 @@
                             <a href="{% url 'FacultyApp:specialCourseAssign' %}"><i class="fas fa-angle-right"></i> Course Assign</a>
                         </li>
                         <li>
-                            <a href=""><i class="fas fa-angle-right"></i> Calculate Result</a>
+                            <a href="{% url "FacultyApp:generate_special_repeat_results" %}"><i class="fas fa-angle-right"></i> Calculate Result</a>
                         </li>
                     </ul>
                     {% else %}

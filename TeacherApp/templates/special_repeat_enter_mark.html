@@ -1,0 +1,81 @@
+{% extends "teacher_base.html" %}
+{% load custom_filters %}
+
+{% block title %}
+Enter Marks - Special Repeat | {{ course.course_title }}
+{% endblock title %}
+
+{% block content %}
+<div class="content">
+    <div class="container">
+        <h3>Enter Marks for Special Repeat {{ course.course_code }} {{ course.course_title }}</h3>
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <form method="POST">
+            {% csrf_token %}
+            <table class="table" id="example">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        {% comment %} <th>Name</th> {% endcomment %}
+                        <th>Attendance</th>
+                        <th>Assignment</th>
+                        <th>Mid Exam</th>
+                        <th>Final Exam</th>
+                        <th>Total Mark</th>
+                        <th>Letter Grade</th>
+                        <th>Grade Point</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.student_id }}</td>
+                        <td>
+                            <input disabled placeholder="Mark not given" type="number" step="0.01" name="attendance_{{ student.id }}" required min="7" max="10"
+                                   value="{{ existing_marks|dict_key:student.id|dict_key:'attendance'|default:'' }}">
+                        </td>
+                        
+                        <td>
+                            <input disabled placeholder="Mark not given" type="number" step="0.01" name="assignment_{{ student.id }}" required max="5" min="0"
+                                   value="{{ existing_marks|dict_key:student.id|dict_key:'assignment'|default:'' }}">
+                        </td>
+                        
+                        <td>
+                            <input disabled placeholder="Mark not given" type="number" step="0.01" name="mid_exam_{{ student.id }}" required max="15" min="0"
+                                   value="{{ existing_marks|dict_key:student.id|dict_key:'mid_exam'|default:'' }}">
+                        </td>
+                        
+                        <td>
+                            <input placeholder="Mark not given" type="number" step="0.01" name="final_exam_{{ student.id }}" required max="70" min="0"
+                                   value="{{ existing_marks|dict_key:student.id|dict_key:'final_exam'|default:'' }}">
+                        </td>
+                        
+                        <td>
+                            {{ existing_marks|dict_key:student.id|dict_key:'total'|default:'0' }}
+                        </td>
+                        
+                        <td>
+                            {{ existing_marks|dict_key:student.id|dict_key:'letter_grade'|default:'F' }}
+                        </td>
+                        
+                        <td>
+                            {{ existing_marks|dict_key:student.id|dict_key:'grade_point'|default:'0' }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button type="submit" class="btn btn-primary">Submit Marks</button>
+            {% comment %} <a href="{% url 'TeacherApp:generate_pdf' course.course_code %}" class="btn btn-secondary">Generate PDF</a> {% endcomment %}
+        </form>
+    </div>
+</div>
+{% endblock content %}

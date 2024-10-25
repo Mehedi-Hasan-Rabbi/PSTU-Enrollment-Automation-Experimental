@@ -83,7 +83,10 @@ def calculate_gpa(student, semester, request):
 
 def calculate_cgpa(student, current_semester, current_gpa, current_credits):
     # Get previous semester results, excluding the current one
-    previous_results = Semester_Result.objects.filter(student_id=student).exclude(semester=current_semester)
+    previous_results = Semester_Result.objects.filter(
+        student_id=student,
+        semester__semester_number__lt=current_semester.semester_number
+    )
     
     # If there are no previous results, this is the first semester
     if not previous_results.exists():
@@ -165,6 +168,11 @@ def get_student_mark(faculty, semester, exam_period, request):
         
         # Get the student's remark based on the university rule
         student_remark = remark(gpa, cgpa, student_marks, semester.semester_number, exam_period)
+        
+        if student_remark == 'Conditional Passed' or student_remark == 'Failed':
+            Student.objects.filter(student_id=student.student_id).update(
+                academic_status='Irregular'
+            )
         
         # All Failed Course
         failing_courses = Course_Mark.objects.filter(student_id=student, grade_point=0.00).select_related('course_id')

@@ -61,6 +61,11 @@ Assign Course to Teacher | Faculty Admin Dashboard
                             </div>
                         </form>
 
+                        <!-- Delete All Button -->
+                        <form method="POST" action="{% url 'FacultyApp:deleteAllCourseInstructors' %}" style="text-align: right;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Delete All Course Instructors</button>
+                        </form>
                     </div>
                 </div>
             </div>

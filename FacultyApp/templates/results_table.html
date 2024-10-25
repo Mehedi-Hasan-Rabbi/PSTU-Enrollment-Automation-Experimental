@@ -61,13 +61,25 @@ Semester {{ semester.semester_number }} Result Calculation
     <a href="{% url 'FacultyApp:all_student_PDF_generate' semester.semester_number %}" class="btn btn-primary mb-3">
         All Student PDF Generate
     </a>
-    <a href="{% url 'FacultyApp:conditional_passed_student_PDF_generate' semester.semester_number %}" class="btn btn-primary mb-3">
+    <a href="{% url 'FacultyApp:conditional_passed_student_PDF_generate' semester.semester_number %}" class="btn btn-secondary mb-3">
         Conditional Passed Student PDF Generate
     </a>
 
-    {% if exam_period == 'F-Removal' %}
+    {% if exam_period == 'F-Removal' and semester.semester_number != last_semester %}
         <a href="{% url 'FacultyApp:promote_to_next_semester' semester.semester_number %}" class="btn btn-outline-success mb-3">
             Promote To next Semester
+        </a>
+    {% endif %}
+
+    {% if semester.semester_number == last_semester %}
+        <a href="{% url "FacultyApp:special_repeat_exam_PDF_generate" last_semester %}" class="btn btn-info mb-3">
+            Special Repeat Info PDF
+        </a>
+    {% endif %}
+
+    {% if semester.semester_number == last_semester %}
+        <a href="{% url "FacultyApp:merit_list_PDF_generate" last_semester %}" class="btn btn-outline-success mb-3">
+            Merit List
         </a>
     {% endif %}
 </div>

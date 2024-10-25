@@ -7,6 +7,10 @@ class Student(models.Model):
         ("Paid", 'Paid'),
         ("Unpaid", 'Unpaid'),
     ]
+    ACADEMIC_STATUS_CHOICES = [
+        ("Regular", 'Regular'),
+        ("Irregular", 'Irregular'),
+    ]
     
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     student_id = models.IntegerField(unique=True)
@@ -16,7 +20,7 @@ class Student(models.Model):
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, null=True)
     curr_semester = models.ForeignKey(Semester, on_delete=models.CASCADE, null=True)
     payment_status = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='Paid')
-    # cgpa = models.DecimalField(max_digits = 4, decimal_places = 3, default=0.0)
+    academic_status = models.CharField(max_length=20, choices=ACADEMIC_STATUS_CHOICES, default='Regular')
     profile_pic = models.ImageField(upload_to='students_profile_pics/')
     
     class Meta:

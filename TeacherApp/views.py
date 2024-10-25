@@ -6,7 +6,7 @@ from django.views.decorators.cache import cache_control
 from django.contrib import messages
 from django.http import HttpResponse
 
-from TeacherApp.models import Teacher, Course_Instructor
+from TeacherApp.models import Teacher, Course_Instructor, Special_Course_Instructor
 from ResultApp.models import Course_Mark, Exam_Period, Semester_Result, Special_Repeat
 from StudentApp.models import Student
 from FacultyApp.models import Course
@@ -94,12 +94,13 @@ def teacher_dashboard(request):
 def myCourses(request):
     teacher = request.user.teacher
     faculty = teacher.faculty
+    num_semesters = faculty.number_of_semseter
     exam_period = Exam_Period.objects.filter(faculty=faculty).first().period
     special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
     assigned_courses = Course_Instructor.objects.filter(teacher_id=teacher).select_related('courseinfo')
     
     if exam_period == 'F-Removal':
-        assigned_courses = assigned_courses.exclude(courseinfo__semester__semester_number=8)
+        assigned_courses = assigned_courses.exclude(courseinfo__semester__semester_number=num_semesters)
 
     context = {
         'assigned_courses': assigned_courses,
@@ -110,6 +111,31 @@ def myCourses(request):
 
     # Add cache control headers to prevent caching
     response = render(request, 'myCourses.html', context)
+    response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response['Pragma'] = 'no-cache'  # HTTP 1.0 backward compatibility
+    response['Expires'] = '0'  # Proxies
+
+    return response
+
+
+@login_required(login_url='TeacherApp:teacher_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def specialCourses(request):
+    teacher = request.user.teacher
+    faculty = teacher.faculty
+    exam_period = Exam_Period.objects.filter(faculty=faculty).first().period
+    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
+    assigned_courses = Special_Course_Instructor.objects.filter(teacher_id=teacher).select_related('courseinfo')
+
+    context = {
+        'assigned_courses': assigned_courses,
+        'teacher_name': teacher.user.get_full_name(),
+        'exam_period':  exam_period,
+        'special_repeat': special_repeat
+    }
+
+    # Add cache control headers to prevent caching
+    response = render(request, 'specialCourses.html', context)
     response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     response['Pragma'] = 'no-cache'  # HTTP 1.0 backward compatibility
     response['Expires'] = '0'  # Proxies
@@ -247,6 +273,108 @@ def enter_marks(request, course_code):
     except Exception as e:
         messages.error(request, f"An error occurred: {str(e)}")
         return redirect('TeacherApp:myCourses')
+    
+    
+
+@login_required(login_url='TeacherApp:teacher_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def special_repeat_enter_mark(request, course_code):
+    try:
+        teacher = Teacher.objects.get(user=request.user)
+        course = Course.objects.get(course_code=course_code)
+        faculty = teacher.faculty
+        exam_period = Exam_Period.objects.filter(faculty=faculty).first().period
+        special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
+
+        # Ensure the teacher is assigned to this course
+        if not Special_Course_Instructor.objects.filter(teacher_id=teacher, courseinfo=course).exists():
+            messages.error(request, "You are not assigned to this course.")
+            return redirect('TeacherApp:specialCourses')
+
+        # Get all students enrolled in this course and same faculty
+        
+        conditonal_pass_student = Semester_Result.objects.filter(semester=8, remark='Conditional Passed')
+        # students = [con.student_id for con in conditonal_pass_student]
+        students = []
+        for con in conditonal_pass_student:
+            print(f"Conditonal Passed Students: {con.student_id}")
+            if Course_Mark.objects.filter(student_id=con.student_id, course_id=course_code).first().total < 40.00:
+                students.append(con.student_id)
+
+        # Fetch existing marks for the course and students
+        existing_marks = {
+            mark.student_id.id: {
+                'attendance': mark.attendance,
+                'assignment': mark.assignment,
+                'mid_exam': mark.mid_exam,
+                'final_exam': mark.final_exam,
+                'total': mark.total,
+                'letter_grade': mark.letter_grade,
+                'grade_point': mark.grade_point,
+            }
+            for mark in Course_Mark.objects.filter(course_id=course, student_id__in=students)
+        }
+
+        existing_marks = existing_marks if existing_marks else {}
+
+        if request.method == 'POST':
+            # Process the marks entry form
+            for student in students:
+                # Allow all fields during Regular, restrict to only final_exam during F-Removal
+                attendance = float(existing_marks.get(student.id, {}).get('attendance', 0))
+                assignment = float(existing_marks.get(student.id, {}).get('assignment', 0))
+                mid_exam = float(existing_marks.get(student.id, {}).get('mid_exam', 0))
+
+                final_exam = float(request.POST.get(f'final_exam_{student.id}', 0))
+
+                # Server-side validation
+                if attendance > 10 or attendance < 7 or assignment > 5 or mid_exam > 15 or final_exam > 70:
+                    messages.error(request, f"Invalid marks for {student.student_id}: "
+                                            f"Attendance must be between 7-10, Assignment <= 5, "
+                                            f"Mid Exam <= 15, Final Exam <= 70.")
+                    return redirect('TeacherApp:special_repeat_enter_mark', course_code=course_code)
+
+                total = attendance + assignment + mid_exam + final_exam
+                grade_point, letter_grade = calculate_grade_point(total)
+
+                # Create or update the student's marks
+                Course_Mark.objects.update_or_create(
+                    student_id=student,
+                    course_id=course,
+                    defaults={
+                        'attendance': attendance,
+                        'assignment': assignment,
+                        'mid_exam': mid_exam,
+                        'final_exam': final_exam,
+                        'total': total,
+                        'letter_grade': letter_grade,
+                        'grade_point': grade_point
+                    }
+                )
+
+            messages.success(request, "Marks entered successfully!")
+            return redirect('TeacherApp:special_repeat_enter_mark', course_code=course_code)
+
+        context = {
+            'course': course,
+            'students': students,
+            'existing_marks': existing_marks,
+            'exam_period': exam_period,
+            'special_repeat': special_repeat
+        }
+        return render(request, 'special_repeat_enter_mark.html', context)
+
+    except Teacher.DoesNotExist:
+        messages.error(request, "You are not authorized to enter marks.")
+        return redirect('TeacherApp:teacher_login')
+
+    except Course.DoesNotExist:
+        messages.error(request, "Course not found.")
+        return redirect('TeacherApp:specialCourses')
+
+    except Exception as e:
+        messages.error(request, f"An error occurred: {str(e)}")
+        return redirect('TeacherApp:specialCourses')
 
 
 

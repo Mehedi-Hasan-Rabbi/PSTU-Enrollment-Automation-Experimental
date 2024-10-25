@@ -69,20 +69,14 @@
                     <a href="#specialrepeat" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle no-caret-down"><i class="fas fa-repeat"></i> Special Repeat</a>
                     <ul class="collapse list-unstyled" id="specialrepeat">
                         <li>
-                            <a href=""><i class="fas fa-angle-right"></i> Course Assign</a>
-                        </li>
-                        <li>
-                            <a href=""><i class="fas fa-angle-right"></i> Calculate Result</a>
+                            <a href="{% url 'TeacherApp:specialCourses' %}"><i class="fas fa-angle-right"></i> My courses (Special)</a>
                         </li>
                     </ul>
                     {% else %}
                     <a href="#specialrepeat" class='disabled-link' data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle no-caret-down"><i class="fas fa-repeat"></i> Special Repeat</a>
                     <ul class="collapse list-unstyled" id="specialrepeat">
                         <li>
-                            <a href=""><i class="fas fa-angle-right"></i> Course Assign</a>
-                        </li>
-                        <li>
-                            <a href=""><i class="fas fa-angle-right"></i> Calculate Result</a>
+                            <a href=""><i class="fas fa-angle-right"></i> My courses (Special)</a>
                         </li>
                     </ul>
                     {% endif %}

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-Assign Course to Teacher | Faculty Admin Dashboard
+Assign Special Repeat Course to Teacher | Faculty Admin Dashboard
 {% endblock title %}
 
 {% block content %}
@@ -13,7 +13,6 @@ Assign Course to Teacher | Faculty Admin Dashboard
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
-
                     <div class="card-header">Faculty of {{faculty_name}}</div>
                     <div class="card-body">
                         <!-- Messages for success or error -->
@@ -35,7 +34,7 @@ Assign Course to Teacher | Faculty Admin Dashboard
                                 <div class="col-sm-10">
                                     <select name="teacher_id" class="form-select" required>
                                         {% for teacher in all_teachers %}
-                                            <option value="{{ teacher.id }}">{{ teacher.user.first_name }} {{ teacher.user.last_name }} ({{ teacher.user.username }})  - {{ teacher.department.dept_name }}</option>
+                                            <option value="{{ teacher.id }}">{{ teacher.user.first_name }} {{ teacher.user.last_name }} ({{ teacher.user.username }}) - {{ teacher.department.dept_name }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -61,11 +60,15 @@ Assign Course to Teacher | Faculty Admin Dashboard
                             </div>
                         </form>
 
+                        <!-- Delete Button -->
+                        <form method="POST" action="{% url 'FacultyApp:deleteAllSpecialCourses' %}" style="position: absolute; right: 20px; bottom: 20px;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete all assigned special courses?');">Delete All Special Course Assignments</button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 {% endblock content %}

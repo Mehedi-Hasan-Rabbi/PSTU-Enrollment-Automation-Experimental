@@ -8,7 +8,7 @@ Update Exam Period | Faculty Admin Dashboard
 <div class="content">
     <div class="container">
         <div class="page-title">
-            <h3>Update Exam Period</h3>
+            <h3>Update Exam Period & Special Repeat</h3>
         </div>
         <div class="row">
             <div class="col-lg-12">
@@ -17,6 +17,8 @@ Update Exam Period | Faculty Admin Dashboard
                     <div class="card-body">
                         <form method="POST" accept-charset="utf-8">
                             {% csrf_token %}
+                            
+                            <!-- Exam Period Dropdown -->
                             <div class="mb-3 row">
                                 <label class="col-sm-2 form-label" for="exam_period">Exam Period</label>
                                 <div class="col-sm-10">
@@ -27,12 +29,25 @@ Update Exam Period | Faculty Admin Dashboard
                                     </select>
                                 </div>
                             </div>
+                            
+                            <!-- Special Repeat Dropdown -->
+                            <div class="mb-3 row">
+                                <label class="col-sm-2 form-label" for="special_repeat">Special Repeat</label>
+                                <div class="col-sm-10">
+                                    <select name="special_repeat" class="form-select">
+                                        <option value="Enable" {% if special_repeat == 'Enable' %}selected{% endif %}>Enable</option>
+                                        <option value="Disable" {% if special_repeat == 'Disable' %}selected{% endif %}>Disable</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
                             <div class="mb-3 row">
                                 <div class="col-sm-10 offset-sm-2">
-                                    <input type="submit" class="btn btn-primary" value="Update Exam Period">
+                                    <input type="submit" class="btn btn-primary" value="Update">
                                 </div>
                             </div>
                         </form>
+
                         {% if messages %}
                             {% for msg in messages %}
                                 {% if msg.tags == 'success' %}

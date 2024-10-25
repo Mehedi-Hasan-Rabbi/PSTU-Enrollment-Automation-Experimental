@@ -13,9 +13,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from .models import FacultyController, Semester, Course, Faculty, Department
 from TeacherApp.models import Teacher, Course_Instructor, Special_Course_Instructor
 from StudentApp.models import Student
-from ResultApp.views import get_student_mark
-from ResultApp.models import Exam_Period, Semester_Result, Special_Repeat
-from FacultyApp.documentGenerator import all_student_PDF, conditional_passed_student_PDF
+from ResultApp.views import get_student_mark, calculate_cgpa, calculate_gpa
+from ResultApp.models import Exam_Period, Semester_Result, Special_Repeat, Course_Mark
+from FacultyApp.documentGenerator import all_student_PDF, conditional_passed_student_PDF, special_repeat_exam_pdf, merit_list_PDF
 
 
 
@@ -568,6 +568,16 @@ def assignCourse(request):
     })
 
 
+    
+@login_required(login_url='FacultyApp:faculty_admin_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def deleteAllCourseInstructors(request):
+    if request.method == 'POST':
+        Course_Instructor.objects.all().delete()
+        messages.success(request, 'All Course Instructor data has been deleted successfully.')
+    return redirect('FacultyApp:assignCourse')
+
+
 
 @login_required(login_url='FacultyApp:faculty_admin_login')
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -613,6 +623,15 @@ def specialCourseAssign(request):
         'exam_period':  Exam_Period.objects.filter(faculty=faculty).first().period,
         'special_repeat': special_repeat
     })
+    
+    
+@login_required(login_url='FacultyApp:faculty_admin_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def deleteAllSpecialCourses(request):
+    if request.method == 'POST':
+        Special_Course_Instructor.objects.all().delete()
+        messages.success(request, 'All special course assignments have been deleted.')
+    return redirect('FacultyApp:specialCourseAssign')
 
 
 @login_required(login_url='FacultyApp:faculty_admin_login')
@@ -621,30 +640,36 @@ def updateExamPeriod(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
     
-    # Fetch current exam period or create a default one
+    # Fetch current exam period and special repeat, or create defaults if not present
     exam_period = Exam_Period.objects.filter(faculty=faculty).first()
-    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
-    
+    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first()
+
     if request.method == 'POST':
         selected_period = request.POST.get('exam_period')
+        selected_repeat = request.POST.get('special_repeat')
         
+        # Update or create exam period
         if exam_period:
-            # Update existing exam period
             exam_period.period = selected_period
             exam_period.save()
-            messages.success(request, 'Exam period updated successfully!')
         else:
-            # Create a new exam period
             Exam_Period.objects.create(faculty=faculty, period=selected_period)
-            messages.success(request, 'Exam period created successfully!')
         
+        # Update or create special repeat
+        if special_repeat:
+            special_repeat.special_period = selected_repeat
+            special_repeat.save()
+        else:
+            Special_Repeat.objects.create(faculty=faculty, special_period=selected_repeat)
+        
+        messages.success(request, 'Exam Period and Special Repeat updated successfully!')
         return redirect('FacultyApp:updateExamPeriod')
 
-    # Render the template with the current exam period
+    # Render the template with the current exam period and special repeat
     return render(request, 'updateExamPeriod.html', {
         'faculty': faculty,
         'exam_period': exam_period.period if exam_period else 'Regular',
-        'special_repeat': special_repeat
+        'special_repeat': special_repeat.special_period if special_repeat else 'Disable'
     })
 
 
@@ -676,9 +701,10 @@ def calculate_result(request):
 
     #         semester.student_count = Student.objects.filter(id__in=conditional_students, faculty=faculty).count()
     
+     
     semesters = []
     if exam_period == 'F-Removal':
-        semesters = Semester.objects.filter(semester_number__lte=num_semesters).exclude(semester_number=8)
+        semesters = Semester.objects.filter(semester_number__lte=num_semesters).exclude(semester_number=num_semesters)
     else:
         semesters = Semester.objects.filter(semester_number__lte=num_semesters)
     
@@ -702,6 +728,7 @@ def generate_results(request, semester_number):
     faculty = faculty_controller.faculty
     exam_period = Exam_Period.objects.filter(faculty=faculty).first().period
     special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
+    last_semester = faculty.number_of_semseter
 
     # Get the semester object
     semester = Semester.objects.get(semester_number=semester_number)
@@ -714,6 +741,84 @@ def generate_results(request, semester_number):
     
     context['exam_period'] =  exam_period  # Add exam period to context
     context['special_repeat'] = special_repeat
+    context['last_semester'] = last_semester
+
+    return render(request, 'results_table.html', context)
+
+
+@login_required(login_url='FacultyApp:faculty_admin_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def generate_special_repeat_results(request):
+    faculty_controller = FacultyController.objects.get(user=request.user)
+    faculty = faculty_controller.faculty
+    exam_period = Exam_Period.objects.filter(faculty=faculty).first().period
+    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
+    
+    results = []
+    last_semester = faculty.number_of_semseter
+    students_in_last_semester = Student.objects.filter(curr_semester__semester_number=last_semester, payment_status='Paid').order_by("student_id")
+    
+    for student in students_in_last_semester:
+        
+        for semester_number in range(1, last_semester + 1):
+            semester = Semester.objects.get(semester_number=semester_number)
+            
+            gpa, current_credits, student_marks = calculate_gpa(student, semester, request)
+            
+            if gpa is None and current_credits is None and student_marks is None:
+                messages.error(request, f"Marks are incomplete for student {student.user.get_full_name()} in semester {semester_number}.")
+                return redirect('FacultyApp:generate_special_repeat_results')
+            
+            cgpa, cumulative_credits = calculate_cgpa(student, semester, gpa, current_credits)
+            
+            # Determine remark based on updated rule: Conditional Passed if any course is failed
+            f_grade_count = sum(1 for mark in student_marks.values() if mark['grade_point'] == 0.00)
+            if f_grade_count > 0:
+                student_remark = "Conditional Passed"
+            else:
+                student_remark = "Passed"
+            
+            
+            # All Failed Course
+            failing_courses = Course_Mark.objects.filter(student_id=student, grade_point=0.00).select_related('course_id')
+            failed_courses = []
+            for course_mark in failing_courses:
+                failed_courses.append(course_mark.course_id.course_code)
+
+            # Save the result in Semester_Result model
+            Semester_Result.objects.update_or_create(
+                student_id=student,
+                semester=semester,
+                defaults={
+                    'gpa': gpa,
+                    'cgpa': cgpa,  # For first semester, CGPA = GPA
+                    'curr_sem_credit_earned': current_credits,
+                    'cumulative_credit_earned': cumulative_credits,
+                    'remark': student_remark,
+                }
+            )
+            
+            # Prepare the results for the context
+            if semester_number == last_semester:
+                results.append({
+                    'student_id': student.student_id,
+                    'marks': student_marks,
+                    'gpa': gpa,
+                    'cgpa': cgpa,
+                    'remark': student_remark,
+                    'failed_courses' : failed_courses
+                })
+                
+    
+    context = {
+        'semester': semester,
+        'course_codes': Course.objects.filter(semester=last_semester, faculty_name=faculty),
+        'results': results
+    }
+    
+    context['exam_period'] =  exam_period
+    context['special_repeat'] = special_repeat
+    context['last_semester'] = last_semester
 
     return render(request, 'results_table.html', context)
 
@@ -733,7 +838,7 @@ def promote_to_next_semester(request, semester_number):
     if not next_semester:
         # Handle the case when the next semester does not exist
         messages.error(request, f"Semester {semester_number + 1} does not exist.")
-        return redirect('FacultyApp:faculty_dashboard')
+        return redirect('FacultyApp:dashboard')
 
     # Get all students in the current semester and faculty
     students = Student.objects.filter(curr_semester=current_semester, faculty=faculty, payment_status='Paid')
@@ -752,6 +857,12 @@ def promote_to_next_semester(request, semester_number):
                 student.save()
 
                 promoted_students.append(student)
+                
+            elif semester_result.remark == "Failed":
+                Course_Mark.objects.filter(student_id=student, course_id__semester=current_semester).delete()
+                semester_result.delete()
+                student.payment_status = 'Unpaid'
+                student.save()
 
     if promoted_students:
         messages.success(request, f"Successfully promoted {len(promoted_students)} students to semester {next_semester.semester_number}.")
@@ -785,6 +896,34 @@ def conditional_passed_student_PDF_generate(request, semester_number):
     faculty = faculty_controller.faculty
     try:
         response = conditional_passed_student_PDF(faculty, semester_number)
+        return response
+
+    except Exception as e:
+        return HttpResponse(f"An error occurred: {str(e)}", status=500)
+    
+    
+@login_required(login_url='FacultyApp:faculty_admin_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def special_repeat_exam_PDF_generate(request, semester_number):    
+    faculty_controller = FacultyController.objects.get(user=request.user)
+    faculty = faculty_controller.faculty
+    
+    try:
+        response = special_repeat_exam_pdf(faculty, semester_number)
+        return response
+
+    except Exception as e:
+        return HttpResponse(f"An error occurred: {str(e)}", status=500)
+    
+
+@login_required(login_url='FacultyApp:faculty_admin_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def merit_list_PDF_generate(request, semester_number):    
+    faculty_controller = FacultyController.objects.get(user=request.user)
+    faculty = faculty_controller.faculty
+    
+    try:
+        response = merit_list_PDF(faculty, semester_number)
         return response
 
     except Exception as e:
