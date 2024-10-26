@@ -69,10 +69,8 @@ def teacher_dashboard(request):
     teacher = Teacher.objects.get(user=request.user)
     faculty = teacher.faculty
     
-    
     exam_period = Exam_Period.objects.filter(faculty=faculty).first()
     special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
-    print(f"Teacher Dashboard: {faculty}, Exam Period: {exam_period.period}")
     
     # Create response object with the rendered template
     response = render(request, 'teacher_dashboard.html', {

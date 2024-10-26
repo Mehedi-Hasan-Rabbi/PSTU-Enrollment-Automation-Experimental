@@ -1,0 +1,44 @@
+<!-- student_payment_history.html -->
+{% extends "student_base.html" %}
+
+{% block title %}
+Payment History | Student Dashboard
+{% endblock title %}
+
+{% block content %}
+<div class="content">
+    <div class="container">
+        <h2>Payment History</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Transaction ID</th>
+                    <th>Amount (BDT)</th>
+                    <th>Semester</th>
+                    <th>Date</th>
+                    <th>Invoice</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction.trxID }}</td>
+                    <td>{{ transaction.amount|floatformat:2 }}</td>
+                    <td>{{ transaction.semester.semester_number }}</td>
+                    <td>{{ transaction.created_at }}</td>
+                    <td>
+                        <a href="{% url "StudentApp:download_invoice" transaction.trxID %}" class="btn btn-outline-primary">
+                            <i class="fas fa-file-download"></i> Download Invoice
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">No payment history available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,69 @@
+{% extends "student_base.html" %}
+
+{% block title %}
+Dashboard | Student Dashboard
+{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <div class="container mt-4">
+        <h2>Student Dashboard</h2>
+
+        <!-- Student Details -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Student Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 d-flex justify-content-center align-items-center">
+                        <img src="{{ user.student.profile_pic.url }}" alt="Profile Picture" class="img-fluid rounded-circle" style="width: 150px; height: 150px;">
+                    </div>
+                    <div class="col-md-8">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <th>Name:</th>
+                                    <td>{{ user.get_full_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Student ID:</th>
+                                    <td>{{ user.student.student_id }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Registration No:</th>
+                                    <td>{{ user.student.reg_no }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Current Semester:</th>
+                                    <td>{{ user.student.curr_semester }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Faculty:</th>
+                                    <td>{{ user.student.faculty.faculty_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Payment Status:</th>
+                                    <td>
+                                        <span class="{% if user.student.payment_status == 'Paid' %}bg-success text-white{% else %}bg-danger text-white{% endif %} px-2 py-2 rounded">
+                                            {{ user.student.payment_status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Academic Status:</th>
+                                    <td>
+                                        <span class="{% if user.student.academic_status == 'Regular' %}bg-success text-white{% else %}bg-danger text-white{% endif %} px-2 py-2 rounded">
+                                            {{ user.student.academic_status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

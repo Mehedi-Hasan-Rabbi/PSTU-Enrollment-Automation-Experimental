@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Faculty, Semester, Course, Department, FacultyController
+from .models import Faculty, Semester, Course, Department, FacultyController, Cost
 
 # Register your models here.
 # admin.site.register(Faculty)
@@ -36,4 +36,9 @@ class CourseAdmin(admin.ModelAdmin):
     search_fields = ('course_code', 'course_title', 'semester', 'faculty_name')
     list_filter = ('course_code',)
 
-
+@admin.register(Cost)
+class CostAdmin(admin.ModelAdmin):
+    list_display = ('admission_fee', 'enrollment_fee', 'cost_per_credit', 'electricity')
+    list_display_links = ('admission_fee',)  # This makes 'admission_fee' clickable to view the detail page
+    list_editable = ('enrollment_fee', 'cost_per_credit', 'electricity')
+    search_fields = ('admission_fee', 'enrollment_fee', 'cost_per_credit', 'electricity')

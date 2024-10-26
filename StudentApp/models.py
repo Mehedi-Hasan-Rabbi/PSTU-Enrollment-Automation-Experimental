@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import User
 from FacultyApp.models import Semester, Faculty
@@ -29,17 +30,13 @@ class Student(models.Model):
         ]
     
     
-class Payment(models.Model):
-    PAYMENT_CHOICES = [
-        ("Paid", 'Paid'),
-        ("Unpaid", 'Unpaid'),
-    ]
-    
+class Student_Transaction(models.Model):    
     student_id = models.ForeignKey(Student, on_delete=models.CASCADE, null=True)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE, null=True)
-    payment = models.CharField(max_length=50, choices=PAYMENT_CHOICES, default="Paid")
+    trxID = models.CharField(max_length=50)
+    amount = models.DecimalField(max_digits = 10, decimal_places = 2, default=0.0)
+    created_at = models.DateTimeField(default=timezone.now)
     
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['student_id', 'semester', 'payment'], name='unique_payment')
-        ]
+    def __str__(self):
+        return f"{self.trxID} - {self.amount} - {self.created_at.strftime('%Y-%m-%d %H:%M:%S')}"
+    

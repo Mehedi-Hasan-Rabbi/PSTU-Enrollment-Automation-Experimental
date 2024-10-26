@@ -23,7 +23,8 @@ urlpatterns = [
     path('admin/clearcache/', include('clearcache.urls')),
     path('admin/', admin.site.urls),
     path('',  include('FacultyApp.urls')),
-    path('teacher/',  include('TeacherApp.urls'))
+    path('teacher/',  include('TeacherApp.urls')),
+    path('student/',  include('StudentApp.urls'))
 ]
 
 if settings.DEBUG:

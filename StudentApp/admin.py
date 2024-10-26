@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Student, Payment
+from .models import Student, Student_Transaction
 
 # Register your models here.
 @admin.register(Student)
@@ -9,8 +9,11 @@ class StudenAdmin(admin.ModelAdmin):
     list_filter = ('faculty',)
     
     
-@admin.register(Payment)
-class PaymentAdmin(admin.ModelAdmin):
-    list_display = ('student_id', 'semester', 'payment')
-    search_fields = ('student_id__student_id', 'semester__semester_number', 'payment')
-    list_filter = ('payment', 'semester')
+@admin.register(Student_Transaction)
+class StudentTransactionAdmin(admin.ModelAdmin):
+    list_display = ('student_id', 'semester', 'trxID', 'amount', 'created_at')  # Added created_at
+    search_fields = ('student_id__student_id', 'semester__semester_number', 'trxID', 'amount', 'created_at')  # Added created_at
+    list_filter = ('student_id', 'semester', 'created_at')  # Added created_at
+
+    # Optional: To make the list filter more user-friendly, you can format the created_at field
+    # date_hierarchy = 'created_at'  # This will add a date filter in the admin panel

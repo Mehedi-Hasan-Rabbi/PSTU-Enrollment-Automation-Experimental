@@ -31,6 +31,8 @@ ALLOWED_HOSTS = ['127.0.0.1','d3e9-103-133-254-23.ngrok-free.app']
 # For ngrok
 CSRF_TRUSTED_ORIGINS = [
     'https://d3e9-103-133-254-23.ngrok-free.app',
+    'https://sandbox.sslcommerz.com',
+    'https://securepay.sslcommerz.com',
 ]
 
 
@@ -136,7 +138,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Dhaka'
 
 USE_I18N = True
 

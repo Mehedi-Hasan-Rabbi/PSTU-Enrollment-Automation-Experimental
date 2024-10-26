@@ -71,27 +71,41 @@ def faculty_admin_logout(request):
     return response
 
 
-@login_required(login_url='FacultyApp:faculty_admin_login')  # Redirect to login if not authenticated
+@login_required(login_url='FacultyApp:faculty_admin_login')
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def dashboard(request):
     faculty_controller = FacultyController.objects.get(user=request.user)
     faculty = faculty_controller.faculty
     
+    # Calculate total numbers for dashboard
+    total_students = Student.objects.filter(faculty=faculty).count()
+    total_teachers = Teacher.objects.filter(faculty=faculty).count()
+    total_courses = Course.objects.filter(faculty_name=faculty).count()
+    total_departments = Department.objects.filter(faculty_name=faculty).count()
+    total_exam_periods = Exam_Period.objects.filter(faculty=faculty).count()
+    total_special_repeats = Special_Course_Instructor.objects.filter(teacher_id__faculty=faculty).count()
+
+    # Get the current exam period and special repeat period if available
     exam_period = Exam_Period.objects.filter(faculty=faculty).first()
     special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
-    # print(f"Exam Period: {exam_period.period}")
-    
-    # Create response object with the rendered template
+
+    # Render the dashboard template with context
     response = render(request, 'dashboard.html', {
-        'user': request.user, 
-        'exam_period': exam_period.period,
-        'special_repeat' : special_repeat
+        'user': request.user,
+        'total_students': total_students,
+        'total_teachers': total_teachers,
+        'total_courses': total_courses,
+        'total_departments': total_departments,
+        'total_exam_periods': total_exam_periods,
+        'total_special_repeats': total_special_repeats,
+        'exam_period': exam_period.period if exam_period else 'Not Set',
+        'special_repeat': special_repeat if special_repeat else 'Not Set',
     })
     
-    # Add cache control headers to prevent caching
+    # Add cache control headers
     response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
-    response['Pragma'] = 'no-cache'  # HTTP 1.0
-    response['Expires'] = '0'  # Proxies
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
     
     return response
 

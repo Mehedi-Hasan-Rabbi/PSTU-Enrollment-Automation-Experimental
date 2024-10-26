@@ -1,0 +1,68 @@
+{% extends "student_base.html" %}
+
+{% block title %}
+Student Enrollment | Student Dashboard
+{% endblock title %}
+
+{% block content %}
+<div class="content">
+    <div class="container">
+        <h2>Student Enrollment</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Sl. No.</th>
+                    <th>Course Code</th>
+                    <th>Course Title</th>
+                    <th>Credit Hour</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in course_data %}
+                <tr>
+                    <td>{{ course.sl_no }}</td>
+                    <td>{{ course.course_code }}</td>
+                    <td>{{ course.course_title }}</td>
+                    <td>{{ course.credit_hour }}</td>
+                    <td>{{ course.amount|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Cost Breakdown Table -->
+        <h4>Cost Breakdown</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Admission Fee</th>
+                    <th>Enrollment Fee</th>
+                    <th>Electricity</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ cost.admission_fee }}</td>
+                    <td>{{ cost.enrollment_fee }}</td>
+                    <td>{{ cost.electricity }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Total Amount -->
+        <h4>Total Amount: {{ total_amount }}</h4>
+        
+        <!-- Payment Button -->
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="d-flex justify-content-center mt-5 mb-3">
+                <button type="submit" class="btn btn-outline-danger px-5 py-2" 
+                        {% if payment_status == 'Paid' %}disabled{% endif %}>
+                    Proceed Payment
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock content %}

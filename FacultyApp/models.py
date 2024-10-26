@@ -73,5 +73,14 @@ class Course(models.Model):
     
     def __str__(self):
         return f'{self.course_code}'
-
     
+    
+class Cost(models.Model):
+    admission_fee = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    enrollment_fee = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    cost_per_credit = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    electricity = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+
+    def __str__(self):
+        return f"Cost Details: Admission Fee - {self.admission_fee}, Enrollment Fee - {self.enrollment_fee}, " \
+               f"Cost per Credit - {self.cost_per_credit}, Electricity - {self.electricity}"
