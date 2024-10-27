@@ -1,7 +1,9 @@
 import random
 import string
 import pytz
+from django.conf import settings
 from django.utils import timezone
+from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -197,6 +199,28 @@ def payment_success(request, student_id):
             created_at=current_time_bst
         )
 
+        subject = 'Payment Confirmation'
+        message = (
+            f"Dear {student.user.first_name} {student.user.last_name},\n\n"
+            f"Your payment has been received successfully. Here are the details:\n\n"
+            f"Student ID: {student.student_id}\n"
+            f"Reg. No.: {student.reg_no}\n"
+            f"Semester: {student.curr_semester}\n"
+            f"Transaction ID: {transaction_id}\n"
+            f"Amount Paid: BDT {amount}\n"
+            f"Date & Time: {current_time_bst.strftime('%Y-%m-%d %H:%M:%S')} BST\n\n"
+            f"Thank you for your payment.\n\nBest regards,\nYour University Team"
+        )
+        
+        # Ensure to use the email field from the user's profile
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_HOST_USER,
+            [student.user.email],
+            fail_silently=False,
+        )
+        
         # Return HTML with redirect and styling
         return HttpResponse("""
             <html>

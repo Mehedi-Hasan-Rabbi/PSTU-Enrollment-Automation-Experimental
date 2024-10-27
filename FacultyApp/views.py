@@ -1,5 +1,6 @@
 import os
 from django.conf import settings
+from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -255,6 +256,17 @@ def addTeacher(request):
                 phone_number=phone_number,
                 profile_pic=profile_pic
             )
+            
+            # Send email to the new teacher
+            subject = "Welcome to the Faculty"
+            message = f"Hello {first_name} {last_name},\n\nYour teacher profile has been created.\n\nUsername: {username}\nPassword: {password}\nFaculty: {faculty.faculty_name}\nDepartment: {department.dept_name}\n\nPlease log in and change your password upon first login.\n\nBest regards,\nFaculty Administration"
+            send_mail(
+                subject,
+                message,
+                settings.EMAIL_HOST_USER,
+                [email],
+                fail_silently=False,
+            )
 
             messages.success(request, 'Teacher added successfully!')
             return redirect('FacultyApp:addTeacher')
@@ -476,6 +488,22 @@ def addStudent(request):
                 # cgpa=cgpa,
                 profile_pic=profile_pic
             )
+            
+            subject = "Welcome to the University"
+            message = (
+                f"Hello {first_name} {last_name},\n\nYour student profile has been created.\n\n"
+                f"Username: {username}\nPassword: {password}\nFaculty: {faculty.faculty_name}\n"
+                f"Session: {session}\nCurrent Semester: {curr_semester.semester_number}\n\n"
+                "Please log in and change your password upon first login.\n\nBest regards,\nFaculty Administration"
+            )
+            send_mail(
+                subject,
+                message,
+                settings.EMAIL_HOST_USER,
+                [email],
+                fail_silently=False,
+            )
+            
             messages.success(request, "Student added successfully!")
         except Exception as e:
             messages.error(request, str(e))
