@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_control
 from django.contrib import messages
 from django.http import HttpResponse
+from django.contrib.auth.hashers import check_password
 
 from TeacherApp.models import Teacher, Course_Instructor, Special_Course_Instructor
 from ResultApp.models import Course_Mark, Exam_Period, Semester_Result, Special_Repeat
@@ -74,6 +75,53 @@ def teacher_dashboard(request):
     
     # Create response object with the rendered template
     response = render(request, 'teacher_dashboard.html', {
+        'user': request.user, 
+        'exam_period': exam_period.period,
+        'special_repeat': special_repeat
+    })
+    
+    # Add cache control headers to prevent caching
+    response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response['Pragma'] = 'no-cache'  # HTTP 1.0
+    response['Expires'] = '0'  # Proxies
+    
+    return response
+
+
+@login_required(login_url='TeacherApp:teacher_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def teacher_update_profile(request):
+    teacher = Teacher.objects.get(user=request.user)
+    faculty = teacher.faculty
+    
+    exam_period = Exam_Period.objects.filter(faculty=faculty).first()
+    special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
+    
+    if request.method == 'POST':
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        
+        
+        # Check if current password matches the user's password
+        if check_password(current_password, request.user.password):
+            if new_password == confirm_password:
+                # Set the new password
+                request.user.set_password(new_password)
+                request.user.save()
+                
+                # Update the session with the new password to keep the user logged in
+                update_session_auth_hash(request, request.user)
+                
+                messages.success(request, 'Your password has been updated successfully.')
+                return redirect('TeacherApp:teacher_update_profile')
+            else:
+                messages.error(request, 'New password and confirm password do not match.')
+        else:
+            messages.error(request, 'Current password is incorrect.')
+            
+
+    response = render(request, 'teacher_update_profile.html', {
         'user': request.user, 
         'exam_period': exam_period.period,
         'special_repeat': special_repeat

@@ -6,10 +6,11 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_control
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.hashers import check_password
 from django.contrib import messages
 from django.http import HttpResponse
 from django.urls import reverse
@@ -97,6 +98,49 @@ def student_dashboard(request):
 
 @login_required(login_url='StudentApp:student_login')
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def update_profile(request):
+    student = Student.objects.get(user=request.user)
+    faculty = student.faculty
+    
+    if request.method == 'POST':
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        
+        print(f"{request.user.password} =================")
+        
+        # Check if current password matches the user's password
+        if check_password(current_password, request.user.password):
+            if new_password == confirm_password:
+                # Set the new password
+                request.user.set_password(new_password)
+                request.user.save()
+                
+                # Update the session with the new password to keep the user logged in
+                update_session_auth_hash(request, request.user)
+                
+                messages.success(request, 'Your password has been updated successfully.')
+                return redirect('StudentApp:update_profile')
+            else:
+                messages.error(request, 'New password and confirm password do not match.')
+        else:
+            messages.error(request, 'Current password is incorrect.')
+    
+    # Create response object with the rendered template
+    response = render(request, 'student_update_profile.html', {
+        'user': request.user,
+    })
+    
+    # Add cache control headers to prevent caching
+    response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response['Pragma'] = 'no-cache'  # HTTP 1.0
+    response['Expires'] = '0'  # Proxies
+    
+    return response
+
+
+@login_required(login_url='StudentApp:student_login')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def student_enrollment(request):
     # Get the student and their faculty details
     student = Student.objects.get(user=request.user)
@@ -124,13 +168,13 @@ def student_enrollment(request):
     total_amount = total_course_cost + cost.admission_fee + cost.enrollment_fee + cost.electricity
     
     if request.method == 'POST':
-        settings = {
-            'store_id': 'patua671a59b3b6059',
-            'store_pass': 'patua671a59b3b6059@ssl',
-            'issandbox': True  # Set to False for production
+        config = {
+            "store_id": settings.SSLCOMMERZ_STORE_ID,
+            "store_pass": settings.SSLCOMMERZ_PASSWORD,
+            "issandbox": settings.SSLCOMMERZ_IS_SANDBOX,
         }
 
-        sslcz = SSLCOMMERZ(settings)
+        sslcz = SSLCOMMERZ(config)
         random_code_1 = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
         random_code_2 = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
         post_body = {

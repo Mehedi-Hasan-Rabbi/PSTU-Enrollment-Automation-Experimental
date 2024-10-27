@@ -26,11 +26,11 @@ SECRET_KEY = 'django-insecure-pu3q!cs647d*g7vk%wse(*k*r4ji7gudn!e_jc)q&(321taf22
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','d3e9-103-133-254-23.ngrok-free.app']
+ALLOWED_HOSTS = ['127.0.0.1','f891-103-133-254-20.ngrok-free.app']
 
 # For ngrok
 CSRF_TRUSTED_ORIGINS = [
-    'https://d3e9-103-133-254-23.ngrok-free.app',
+    'https://f891-103-133-254-20.ngrok-free.app',
     'https://sandbox.sslcommerz.com',
     'https://securepay.sslcommerz.com',
 ]
@@ -166,3 +166,8 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'mehedi.saiyan@gmail.com'  # Your email address
 EMAIL_HOST_PASSWORD = 'pvdt baho hwqv mbbw'  # Your generated app password
 DEFAULT_FROM_EMAIL = 'mehedi.saiyan@gmail.com'
+
+# SSLCOMMERZ SETTINGS
+SSLCOMMERZ_STORE_ID='patua671a59b3b6059'
+SSLCOMMERZ_PASSWORD='patua671a59b3b6059@ssl'
+SSLCOMMERZ_IS_SANDBOX=True

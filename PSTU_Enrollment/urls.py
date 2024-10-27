@@ -29,3 +29,8 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    
+
+admin.site.site_header = "PSTU Result and Enrollment Admin"
+admin.site.site_title = "PSTU Result and Enrollment Admin Portal"
+admin.site.index_title = "Welcome to PSTU Result and Enrollment Admin Portal"
