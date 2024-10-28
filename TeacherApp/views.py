@@ -212,7 +212,8 @@ def calculate_grade_point(marks):
     else:
         return [0.00, 'F']  # F grade
     
-
+    
+# For Regular and F-removal Exam (Special Repeat in given below)
 @login_required(login_url='TeacherApp:teacher_login')
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def enter_marks(request, course_code):
@@ -230,7 +231,7 @@ def enter_marks(request, course_code):
 
         # Get all students enrolled in this course and same faculty
         if exam_period == 'Regular':
-            students = Student.objects.filter(faculty=teacher.faculty, curr_semester=course.semester, payment_status='Paid').order_by('student_id')
+            students = Student.objects.filter(faculty=teacher.faculty, curr_semester=course.semester, payment_status='Paid', graduation_status='Incomplete').order_by('student_id')
         elif exam_period == 'F-Removal':
             conditonal_pass_student = Semester_Result.objects.filter(semester=course.semester, remark='Conditional Passed')
             # students = [con.student_id for con in conditonal_pass_student]
@@ -331,15 +332,15 @@ def special_repeat_enter_mark(request, course_code):
         faculty = teacher.faculty
         exam_period = Exam_Period.objects.filter(faculty=faculty).first().period
         special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
-
+        last_semester = faculty.number_of_semseter
         # Ensure the teacher is assigned to this course
         if not Special_Course_Instructor.objects.filter(teacher_id=teacher, courseinfo=course).exists():
             messages.error(request, "You are not assigned to this course.")
+            print(f"You are not assigned to this course.")
             return redirect('TeacherApp:specialCourses')
 
         # Get all students enrolled in this course and same faculty
-        
-        conditonal_pass_student = Semester_Result.objects.filter(semester=8, remark='Conditional Passed')
+        conditonal_pass_student = Semester_Result.objects.filter(semester=last_semester)
         # students = [con.student_id for con in conditonal_pass_student]
         students = []
         for con in conditonal_pass_student:
@@ -360,7 +361,7 @@ def special_repeat_enter_mark(request, course_code):
             }
             for mark in Course_Mark.objects.filter(course_id=course, student_id__in=students)
         }
-
+        
         existing_marks = existing_marks if existing_marks else {}
 
         if request.method == 'POST':
@@ -400,7 +401,6 @@ def special_repeat_enter_mark(request, course_code):
 
             messages.success(request, "Marks entered successfully!")
             return redirect('TeacherApp:special_repeat_enter_mark', course_code=course_code)
-
         context = {
             'course': course,
             'students': students,
@@ -408,6 +408,7 @@ def special_repeat_enter_mark(request, course_code):
             'exam_period': exam_period,
             'special_repeat': special_repeat
         }
+        print(students)
         return render(request, 'special_repeat_enter_mark.html', context)
 
     except Teacher.DoesNotExist:

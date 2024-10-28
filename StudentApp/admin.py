@@ -4,8 +4,8 @@ from .models import Student, Student_Transaction
 # Register your models here.
 @admin.register(Student)
 class StudenAdmin(admin.ModelAdmin):
-    list_display = ('user', 'student_id', 'faculty', 'curr_semester', 'payment_status')
-    search_fields = ('user__username', 'student_id', 'faculty__faculty_name', 'semester__semester_number', 'payment_status')
+    list_display = ('user', 'student_id', 'faculty', 'curr_semester', 'payment_status', 'academic_status', 'graduation_status')
+    search_fields = ('user__username', 'student_id', 'faculty__faculty_name', 'semester__semester_number', 'payment_status', 'academic_status', 'graduation_status')
     list_filter = ('faculty',)
     
     

@@ -14,7 +14,7 @@ from reportlab.lib.units import inch
 
 
 def all_student_PDF(faculty, semester_number):
-    students = Student.objects.filter(faculty=faculty, curr_semester=semester_number, payment_status='Paid')
+    students = Student.objects.filter(faculty=faculty, curr_semester=semester_number, payment_status='Paid', graduation_status='Incomplete')
            
     # Set up the HttpResponse with appropriate PDF headers
     response = HttpResponse(content_type='application/pdf')
@@ -98,7 +98,7 @@ def all_student_PDF(faculty, semester_number):
 
 
 def conditional_passed_student_PDF(faculty, semester_number):
-    students = Student.objects.filter(faculty=faculty, curr_semester=semester_number, payment_status='Paid')
+    students = Student.objects.filter(faculty=faculty, curr_semester=semester_number, payment_status='Paid', graduation_status='Incomplete')
     conditional_students = []
     
     for student in students:
@@ -188,7 +188,7 @@ def conditional_passed_student_PDF(faculty, semester_number):
 
 def special_repeat_exam_pdf(faculty, semester_number):
     # Get all students in the last semester who failed at least one course
-    students = Student.objects.filter(faculty=faculty, curr_semester=semester_number, payment_status='Paid')
+    students = Student.objects.filter(faculty=faculty, curr_semester=semester_number, payment_status='Paid', graduation_status__in=['Conditional Complete', 'Incomplete'])
     failed_students = []
     
     for student in students:
@@ -261,7 +261,7 @@ def special_repeat_exam_pdf(faculty, semester_number):
 
 def merit_list_PDF(faculty, semester_number):
     # Filter students in the given faculty and semester without any failed courses
-    students = Student.objects.filter(faculty=faculty, curr_semester=semester_number, payment_status='Paid')
+    students = Student.objects.filter(faculty=faculty, curr_semester=semester_number, payment_status='Paid', graduation_status='Complete')
     
     # Collect students with no failing courses in the semester
     qualified_students = []

@@ -12,6 +12,11 @@ class Student(models.Model):
         ("Regular", 'Regular'),
         ("Irregular", 'Irregular'),
     ]
+    GRADUATION_STATUS_CHOICES = [
+        ("Complete", 'Complete'),
+        ("Conditional Complete", 'Conditional Complete'),
+        ("Incomplete", 'Incomplete'),
+    ]
     
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     student_id = models.IntegerField(unique=True)
@@ -22,6 +27,7 @@ class Student(models.Model):
     curr_semester = models.ForeignKey(Semester, on_delete=models.CASCADE, null=True)
     payment_status = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='Paid')
     academic_status = models.CharField(max_length=20, choices=ACADEMIC_STATUS_CHOICES, default='Regular')
+    graduation_status = models.CharField(max_length=20, choices=GRADUATION_STATUS_CHOICES, default='Incomplete')
     profile_pic = models.ImageField(upload_to='students_profile_pics/')
     
     class Meta:

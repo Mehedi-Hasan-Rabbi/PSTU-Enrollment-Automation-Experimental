@@ -79,7 +79,7 @@ def dashboard(request):
     faculty = faculty_controller.faculty
     
     # Calculate total numbers for dashboard
-    total_students = Student.objects.filter(faculty=faculty).count()
+    total_students = Student.objects.filter(faculty=faculty, graduation_status='Incomplete').count()
     total_teachers = Teacher.objects.filter(faculty=faculty).count()
     total_courses = Course.objects.filter(faculty_name=faculty).count()
     total_departments = Department.objects.filter(faculty_name=faculty).count()
@@ -725,25 +725,7 @@ def calculate_result(request):
     num_semesters = faculty.number_of_semseter
     exam_period =  Exam_Period.objects.filter(faculty=faculty).first().period
     special_repeat = Special_Repeat.objects.filter(faculty=faculty).first().special_period
-    # print(f"FacultyApp(view.py) calculate_result:{Faculty}")
-    # Get all semesters up to the number of semesters for this faculty
-    # semesters = Semester.objects.filter(semester_number__lte=num_semesters)
-
-    # Add student count for each semester
-    # if exam_period == 'Regular':
-    #     for semester in semesters:
-    #         semester.student_count = Student.objects.filter(curr_semester=semester, faculty=faculty).count()
-    # elif exam_period == 'F-Removal':
-    #     for semester in semesters:
-    #         # Filter students with "Conditional Passed" remark in the Semester_Result model
-    #         conditional_students = Semester_Result.objects.filter(
-    #             semester=semester,
-    #             remark="Conditional Passed"
-    #         ).values_list('student_id', flat=True)
-
-    #         semester.student_count = Student.objects.filter(id__in=conditional_students, faculty=faculty).count()
-    
-     
+         
     semesters = []
     if exam_period == 'F-Removal':
         semesters = Semester.objects.filter(semester_number__lte=num_semesters).exclude(semester_number=num_semesters)
@@ -751,7 +733,7 @@ def calculate_result(request):
         semesters = Semester.objects.filter(semester_number__lte=num_semesters)
     
     for semester in semesters:
-        semester.student_count = Student.objects.filter(curr_semester=semester, faculty=faculty, payment_status='Paid').count()
+        semester.student_count = Student.objects.filter(curr_semester=semester, faculty=faculty, payment_status='Paid', graduation_status='Incomplete').count()
             
 
     context = {
@@ -798,7 +780,7 @@ def generate_special_repeat_results(request):
     
     results = []
     last_semester = faculty.number_of_semseter
-    students_in_last_semester = Student.objects.filter(curr_semester__semester_number=last_semester, payment_status='Paid').order_by("student_id")
+    students_in_last_semester = Student.objects.filter(curr_semester__semester_number=last_semester, payment_status='Paid', graduation_status='Incomplete').order_by("student_id")
     
     for student in students_in_last_semester:
         
@@ -817,8 +799,12 @@ def generate_special_repeat_results(request):
             f_grade_count = sum(1 for mark in student_marks.values() if mark['grade_point'] == 0.00)
             if f_grade_count > 0:
                 student_remark = "Conditional Passed"
+                student.graduation_status = "Conditional Complete"
+                student.save()
             else:
                 student_remark = "Passed"
+                student.graduation_status = "Complete"
+                student.save()
             
             
             # All Failed Course
@@ -883,7 +869,7 @@ def promote_to_next_semester(request, semester_number):
         return redirect('FacultyApp:dashboard')
 
     # Get all students in the current semester and faculty
-    students = Student.objects.filter(curr_semester=current_semester, faculty=faculty, payment_status='Paid')
+    students = Student.objects.filter(curr_semester=current_semester, faculty=faculty, payment_status='Paid', generate_results="Incomplete")
 
     promoted_students = []
     for student in students:
