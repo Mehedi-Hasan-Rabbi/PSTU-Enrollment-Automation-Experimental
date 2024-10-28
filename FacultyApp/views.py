@@ -780,10 +780,17 @@ def generate_special_repeat_results(request):
     
     results = []
     last_semester = faculty.number_of_semseter
-    students_in_last_semester = Student.objects.filter(curr_semester__semester_number=last_semester, payment_status='Paid', graduation_status='Incomplete').order_by("student_id")
+    students_in_last_semester = Student.objects.filter(
+        curr_semester__semester_number=last_semester, 
+        payment_status='Paid', 
+        graduation_status='Incomplete'
+    ).order_by("student_id")
     
+    if not students_in_last_semester:
+        messages.error(request, "No students found with incomplete graduation status in the last semester.")
+        return redirect('FacultyApp:dashboard')  # Redirect to a relevant page if no students are found
+
     for student in students_in_last_semester:
-        
         for semester_number in range(1, last_semester + 1):
             semester = Semester.objects.get(semester_number=semester_number)
             
@@ -806,12 +813,9 @@ def generate_special_repeat_results(request):
                 student.graduation_status = "Complete"
                 student.save()
             
-            
             # All Failed Course
             failing_courses = Course_Mark.objects.filter(student_id=student, grade_point=0.00).select_related('course_id')
-            failed_courses = []
-            for course_mark in failing_courses:
-                failed_courses.append(course_mark.course_id.course_code)
+            failed_courses = [course_mark.course_id.course_code for course_mark in failing_courses]
 
             # Save the result in Semester_Result model
             Semester_Result.objects.update_or_create(
@@ -834,19 +838,20 @@ def generate_special_repeat_results(request):
                     'gpa': gpa,
                     'cgpa': cgpa,
                     'remark': student_remark,
-                    'failed_courses' : failed_courses
+                    'failed_courses': failed_courses
                 })
-                
+
+    # Ensure semester is defined for context
+    semester = Semester.objects.get(semester_number=last_semester)
     
     context = {
         'semester': semester,
         'course_codes': Course.objects.filter(semester=last_semester, faculty_name=faculty),
-        'results': results
+        'results': results,
+        'exam_period': exam_period,
+        'special_repeat': special_repeat,
+        'last_semester': last_semester
     }
-    
-    context['exam_period'] =  exam_period
-    context['special_repeat'] = special_repeat
-    context['last_semester'] = last_semester
 
     return render(request, 'results_table.html', context)
 
