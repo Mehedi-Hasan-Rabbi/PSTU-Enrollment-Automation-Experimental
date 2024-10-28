@@ -1,0 +1,16 @@
+asgiref==3.8.1
+certifi==2024.8.30
+chardet==5.2.0
+charset-normalizer==3.4.0
+Django==5.1.2
+django-clearcache==1.2.1
+idna==3.10
+mysqlclient==2.2.4
+pillow==10.4.0
+pytz==2024.2
+reportlab==4.2.5
+requests==2.32.3
+sqlparse==0.5.1
+sslcommerz-lib==1.0
+tzdata==2024.2
+urllib3==2.2.3

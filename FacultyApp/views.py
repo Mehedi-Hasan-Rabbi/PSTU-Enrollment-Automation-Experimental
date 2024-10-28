@@ -869,7 +869,7 @@ def promote_to_next_semester(request, semester_number):
         return redirect('FacultyApp:dashboard')
 
     # Get all students in the current semester and faculty
-    students = Student.objects.filter(curr_semester=current_semester, faculty=faculty, payment_status='Paid', generate_results="Incomplete")
+    students = Student.objects.filter(curr_semester=current_semester, faculty=faculty, payment_status='Paid', graduation_status='Incomplete')
 
     promoted_students = []
     for student in students:
