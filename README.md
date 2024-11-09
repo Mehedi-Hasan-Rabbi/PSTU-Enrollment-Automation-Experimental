@@ -8,7 +8,6 @@
 
 # PSTU-Enrollment-Automation-Experimental
  This is a experimental version of PSTU enrollment automation system
-# Under Development
 
 
 [contributors-shield]: https://img.shields.io/github/contributors/Mehedi-Hasan-Rabbi/PSTU-Enrollment-Automation-Experimental.svg?style=for-the-badge
