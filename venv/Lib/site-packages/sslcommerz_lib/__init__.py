@@ -1,1 +1,0 @@
-from .sslcommerz import SSLCOMMERZ
