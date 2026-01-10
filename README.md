@@ -188,6 +188,7 @@ pip install -r requirements. txt
 ```sql
 CREATE DATABASE pstu_enrollment CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
+There is an SQL file in `Document` folder that can be use for demo purposes only.
 
 ### 5. Environment Configuration
 
@@ -202,7 +203,7 @@ Edit the `.env` file with your configuration:
 ```env
 # Security
 SECRET_KEY=your-secret-key-here
-DEBUG=True
+DEBUG=True    # False for production
 
 # Hosts
 ALLOWED_HOSTS=127.0.0.1,localhost
